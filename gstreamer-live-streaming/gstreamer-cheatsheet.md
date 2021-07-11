@@ -1,4 +1,4 @@
-# GStreamer C & CLI Cheatsheet
+# GStreamer-1.14 C & CLI Cheatsheet
 
 ## Initialization
 
@@ -240,9 +240,9 @@ If a container embeds multiple streams (one video and two audio tracks, for exam
 __The ports through which GStreamer elements communicate with each other are called pads__. There exists sink pads, through which data enters an element, and source pads, through which data exits an element. It follows naturally that source elements only contain source pads, sink elements only contain sink pads, and filter elements contain both.  
 
 Pads can be of three different types:
-* Sometimes Pads: these kind Pads appear when data starts to flow into an Element that had no pads to begin with, so it learns about them together with the media;
-* Always Pads: these Pads are the regular pads which are always available;
-* Request Pads: these Pads are created on demand. The classical example is the tee element, which has one sink pad and no initial source pads: they need to be requested and then tee adds them. In this way, an input stream can be replicated any number of times. The disadvantage is that linking elements with Request Pads is not as automatic, as linking Always Pads.
+* __Sometimes Pads__: these kind Pads _appear when data starts to flow into an Element_ that had no pads to begin with, so it learns about them together with the media;
+* __Always Pads__: these Pads are the regular pads which are _always available_;
+* __Request Pads__: these Pads are _created on demand_. The classical example is the tee element, which has one sink pad and no initial source pads: they need to be requested and then tee adds them. In this way, an input stream can be replicated any number of times. The disadvantage is that linking elements with Request Pads is not as automatic, as linking Always Pads.
 
 ### C
 ```
@@ -258,8 +258,21 @@ To retrieve the Pad from an instatiated Element we use:
 GstPad *
 gst_element_get_static_pad (GstElement * element,
                             const gchar * name)
+```C
+For __Request Pads__, they need to be obtained by “requesting” them to the Element. An element might be able to produce different kinds of Request Pads, so, when requesting them, the desired Pad Template name must be provided.
 ```
-
+GstPad *    // NULL if not found
+gst_element_request_pad (GstElement * element,
+                         GstPadTemplate * templ,    //template of the wanted Pad
+                         const gchar * name,        //can be NULL
+                         const GstCaps * caps)      //can be NULL
+``` 
+Finally, to link pads among each other we use:
+```C
+GstPadLinkReturn
+gst_pad_link (GstPad * srcpad,
+              GstPad * sinkpad)
+```
 ## GstPadTemplate
 Padtemplates describe the possible media types a Pad or an ElementFactory can handle. This allows for both inspection of handled types before loading the element plugin as well as identifying pads on elements that are not yet created (request or sometimes pads).  
 Templates are useful to create several similar Pads, and also allow early refusal of connections between elements: If the Capabilities of their Pad Templates do not have a common subset (their intersection is empty), there is no need to negotiate further.
@@ -286,8 +299,12 @@ To get Caps from an instantiated Pad we use:
 GstCaps *
 gst_pad_get_current_caps (GstPad * pad)
 ```
+# App Library
+## GstAppSrc
+The appsrc element can be used by applications to insert data into a GStreamer pipeline. Unlike most GStreamer elements, appsrc provides external API functions.
 
-### CLI
+## GstAppSink
+
 # GNOME
 ## GSignal
 ### C
