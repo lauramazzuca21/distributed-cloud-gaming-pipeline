@@ -30,4 +30,4 @@ cd bin
 ```
 # TODO
 - [ ] add audio queue
-- [ ] make modular the source element so that it can handle different protocols
+- [ ] make the source frames locaclly stored instead of a remote stream
