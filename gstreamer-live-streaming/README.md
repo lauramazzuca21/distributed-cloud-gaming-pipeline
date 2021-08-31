@@ -30,4 +30,4 @@ cd bin
 ```
 # TODO
 - [ ] add audio queue
-- [ ] make the source frames locaclly stored instead of a remote stream
+- [ ] make the source frames locally stored instead of a remote stream
