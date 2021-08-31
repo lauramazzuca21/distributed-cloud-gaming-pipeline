@@ -27,7 +27,7 @@ main (int argc, char *argv[])
   gst_init (&argc, &argv);
 
   /* Create the elements */
-  data.source = gst_element_factory_make ("rtspsrc", "rtsp-source");
+  data.source = gst_element_factory_make ("rtspsrc", "rtsp-source");        //sometimes link
   data.extract = gst_element_factory_make ("rtph264depay", "extract");
   data.decode = gst_element_factory_make ("avdec_h264", "decode");
   data.sink = gst_element_factory_make ("autovideosink", "sink");
