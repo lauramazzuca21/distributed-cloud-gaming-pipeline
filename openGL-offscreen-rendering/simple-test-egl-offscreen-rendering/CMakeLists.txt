@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(EGL-Test)
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL GLX)
-find_package(GLUT REQUIRED)
+# find_package(GLUT REQUIRED) # ${GLUT_INCLUDE_DIRS} # ${GLUT_LIBRARY}
 find_package(GLEW REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS}  ${GLEW_INCLUDE_DIRS})
+include_directories(${OPENGL_INCLUDE_DIRS}  ${GLEW_INCLUDE_DIRS})
 add_executable(main main.cpp)
-target_link_libraries(main PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLUT_LIBRARY} ${GLEW_LIBRARIES})
+target_link_libraries(main PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLEW_LIBRARIES})
