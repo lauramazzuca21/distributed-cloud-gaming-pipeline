@@ -1,14 +1,22 @@
+/*
+ * OpenCV for saving the render target as an image file.
+ */
+#include <opencv2/opencv.hpp>
+
 #include <GL/glew.h>
 
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <random>
 
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <unistd.h>
+
+#include "Errors.h"
 
 void CHECK_FRAMEBUFFER_STATUS()
 {                                                         
@@ -83,17 +91,23 @@ namespace render
             (int)blue_bits,
             (int)alpha_bits );
 
-        CHECK_FRAMEBUFFER_STATUS();
+        GLint imp_fmt, imp_type;
 
-        dumpbuf_fd = open("./fbodump.rgb", O_CREAT|O_SYNC|O_RDWR, S_IRUSR|S_IWUSR);
-        assert(-1 != dumpbuf_fd);
-        dumpbuf = malloc(fbo_width*fbo_height*3);
-        assert(dumpbuf);
+        glGetIntegerv (GL_IMPLEMENTATION_COLOR_READ_FORMAT, &imp_fmt);
+        glGetIntegerv (GL_IMPLEMENTATION_COLOR_READ_TYPE,   &imp_type);
+
+        printf ("Supported Color Format/Type: %x/%x\n", imp_fmt, imp_type);
+
+
+        CHECK_FRAMEBUFFER_STATUS();
     }
 
     void display()
     {
-        static float a=0, b=0, c=0;
+        static int i=0;
+		std::random_device rd; // obtain a random number from hardware
+		std::mt19937 gen(rd()); // seed the generator
+		std::uniform_int_distribution<> distr(0, 100); // define the range
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glEnable(GL_TEXTURE_2D);
@@ -101,7 +115,7 @@ namespace render
 
         glViewport(0,0,fbo_width, fbo_height);
 
-        glClearColor(0,0,0,0);
+        glClearColor(1.0f,1.0f,1.0f,0.0f);
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         glMatrixMode(GL_PROJECTION);
@@ -112,19 +126,24 @@ namespace render
         glLoadIdentity();
 
         glBegin(GL_TRIANGLES);
-        glColor3f(1,0,0);
-        glVertex3f(1,0,0);
+        glColor3f(distr(gen)/100.0,0,0);//blue channel
+        glVertex3f(1,1,0);
 
-        glColor3f(0,1,0);
-        glVertex3f(0,1,0);
+        glColor3f(0,0,distr(gen)/100.0);//red channel
+        glVertex3f(-1,1,0);
 
-        glColor3f(0,0,1);
-        glVertex3f(0,0,1);
+        glColor3f(0,distr(gen)/100.0,0);//green chsannel
+        glVertex3f(0,-1,0);
         glEnd();
-
+       
+        cv::Mat image(fbo_width,fbo_height, CV_8UC3);
         glReadBuffer(GL_COLOR_ATTACHMENT0);
-        glReadPixels(0,0,fbo_width,fbo_height,GL_RGB,GL_UNSIGNED_BYTE,dumpbuf);
-        lseek(dumpbuf_fd, SEEK_SET, 0);
-        write(dumpbuf_fd, dumpbuf, fbo_width*fbo_height*3);
+        glReadPixels(0,0,fbo_width,fbo_height,GL_RGB,GL_UNSIGNED_BYTE,image.data);
+		assertOpenGLError("glReadPixels");
+
+		std::ostringstream img_name;
+		img_name << "frame" << i << ".png";
+		cv::imwrite(img_name.str(), image);
+        i++;
     }
 };
