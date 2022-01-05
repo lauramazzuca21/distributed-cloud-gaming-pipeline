@@ -52,33 +52,9 @@ namespace render
     float const light_dir[]={1,1,1,0};
     float const light_color[]={1,0.95,0.9,1};
 
-    void init()
-    {
-        glGenFramebuffers(1, &fb);
-        glGenTextures(1, &color);
-        glGenRenderbuffers(1, &depth);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, fb);
-
-        glBindTexture(GL_TEXTURE_2D, color);
-        glTexImage2D(   GL_TEXTURE_2D, 
-                0, 
-                GL_RGB8, 
-                fbo_width, fbo_height,
-                0, 
-                GL_RGBA, 
-                GL_UNSIGNED_BYTE, 
-                NULL);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color, 0);
-
-        glBindRenderbuffer(GL_RENDERBUFFER, depth);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, fbo_width, fbo_height);
-        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
-
-        GLint red_bits, green_bits, blue_bits, alpha_bits;
+    void print_stats() {
+                GLint red_bits, green_bits, blue_bits, alpha_bits;
 
         glGetIntegerv(GL_RED_BITS,   &red_bits);
         glGetIntegerv(GL_GREEN_BITS, &green_bits);
@@ -97,14 +73,51 @@ namespace render
         glGetIntegerv (GL_IMPLEMENTATION_COLOR_READ_TYPE,   &imp_type);
 
         printf ("Supported Color Format/Type: %x/%x\n", imp_fmt, imp_type);
+    }
 
+    void print_frame() {
+        static int i=0;
+        cv::Mat image(fbo_width,fbo_height, CV_8UC3);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glReadPixels(0,0,fbo_width,fbo_height,GL_RGB,GL_UNSIGNED_BYTE,image.data);
+		assertOpenGLError("glReadPixels");
 
+		std::ostringstream img_name;
+		img_name << "frame" << i << ".png";
+		cv::imwrite(img_name.str(), image);
+        i++;
+    }
+
+    void init() {
+        glGenFramebuffers(1, &fb);
+        glGenTextures(1, &color);
+        glGenRenderbuffers(1, &depth);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, fb);
+
+        glBindTexture(GL_TEXTURE_2D, color);
+        glTexImage2D(GL_TEXTURE_2D, 
+                0, 
+                GL_RGB8, 
+                fbo_width, fbo_height,
+                0, 
+                GL_RGBA, 
+                GL_UNSIGNED_BYTE, 
+                NULL);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color, 0);
+
+        glBindRenderbuffer(GL_RENDERBUFFER, depth);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, fbo_width, fbo_height);
+        glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
+
+        print_stats();
         CHECK_FRAMEBUFFER_STATUS();
     }
 
-    void display()
-    {
-        static int i=0;
+    void display() {
 		std::random_device rd; // obtain a random number from hardware
 		std::mt19937 gen(rd()); // seed the generator
 		std::uniform_int_distribution<> distr(0, 100); // define the range
@@ -136,14 +149,6 @@ namespace render
         glVertex3f(0,-1,0);
         glEnd();
        
-        cv::Mat image(fbo_width,fbo_height, CV_8UC3);
-        glReadBuffer(GL_COLOR_ATTACHMENT0);
-        glReadPixels(0,0,fbo_width,fbo_height,GL_RGB,GL_UNSIGNED_BYTE,image.data);
-		assertOpenGLError("glReadPixels");
-
-		std::ostringstream img_name;
-		img_name << "frame" << i << ".png";
-		cv::imwrite(img_name.str(), image);
-        i++;
+        print_frame();
     }
 };

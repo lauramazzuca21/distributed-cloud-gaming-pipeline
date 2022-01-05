@@ -1,7 +1,9 @@
 #include "Render.h"
 #include "Errors.h"
 
+#define EGL_EGLEXT_PROTOTYPES
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include <GL/glew.h>
 
 #include <math.h>
@@ -26,23 +28,51 @@ static const std::array<EGLint, 13> config_Attrib {
     EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
     EGL_NONE
 };
+
+EGLBoolean platform_specific_EGLdisplay(EGLDisplay * eglDpy, EGLint * numConfigs, EGLConfig * eglCfg, EGLint * major, EGLint  * minor)
+{
+    //this display initializatoin is done to look for available displays when
+    //deploying to machines with unknown HW configs
+    static const int MAX_DEVICES = 32;
+    EGLDeviceEXT eglDevs[MAX_DEVICES];
+    EGLint numDevices;
+
+    PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT = (PFNEGLQUERYDEVICESEXTPROC) eglGetProcAddress("eglQueryDevicesEXT");
+
+    eglQueryDevicesEXT(MAX_DEVICES, eglDevs, &numDevices);
+
+    printf("Detected %d devices\n", numDevices);
+
+    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = (PFNEGLGETPLATFORMDISPLAYEXTPROC) eglGetProcAddress("eglGetPlatformDisplayEXT");
+
+    // 1. Initialize EGL && Select an appropriate configuration
+    EGLBoolean found = EGL_FALSE;
+    for( EGLint i = 0; (EGL_FALSE == found) && (i < numDevices); ++i ){
+        (*eglDpy) = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevs[i], 0);
+        eglInitialize(eglDpy, major, minor);
+        found = eglChooseConfig((*eglDpy), config_Attrib.data(), eglCfg, 1, numConfigs);
+        printf("device %i - config result %d\n", i, found ? 1 : 0);
+    }
+
+    return found;	
+}
+
 int main(int argc, char *argv[])
 {
-    // 1. Initialize EGL
-    EGLDisplay eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-	assertEGLError("eglGetDisplay");
-
-    EGLint major, minor;    
-    eglInitialize(eglDpy, &major, &minor);
-	assertEGLError("eglInitialize");
-
-    // 2. Select an appropriate configuration
-    EGLint numConfigs;
+    EGLDisplay eglDpy;
+	EGLint numConfigs;
     EGLConfig eglCfg;
-
-    eglChooseConfig(eglDpy, config_Attrib.data(), &eglCfg, 1, &numConfigs);
-	assertEGLError("eglChooseConfig");
-
+    EGLint major, minor;    
+    // 1. Initialize EGL & 2. Select an appropriate configuration
+    if (platform_specific_EGLdisplay(&eglDpy, &numConfigs, &eglCfg, &major, &minor) != EGL_TRUE)
+    {
+        eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        assertEGLError("eglGetDisplay");
+        eglInitialize(eglDpy, &major, &minor);
+        assertEGLError("eglInitialize");
+        eglChooseConfig(eglDpy, config_Attrib.data(), &eglCfg, 1, &numConfigs);
+	    assertEGLError("eglChooseConfig");
+    }
     // 3. Bind the API
     eglBindAPI(EGL_OPENGL_API);
 	assertEGLError("eglBindAPI");
