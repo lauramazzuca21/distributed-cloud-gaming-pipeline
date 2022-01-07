@@ -24,6 +24,8 @@
 
 class Render
 {
+    // FFMPEGEncoder * encoder = new FFMPEGEncoder();
+
     float aspect;
 
     GLuint fb, color, depth;
@@ -57,21 +59,21 @@ class Render
     };
 
     color4 colors[8] = {
-        color4(1.0, 1.0, 1.0, 1.0),  // white
-        color4(1.0, 0.0, 0.0, 1.0),  // red
-        color4(1.0, 1.0, 0.0, 1.0),  // yellow
-        color4(0.0, 1.0, 0.0, 1.0),  // green
-        color4(0.0, 0.0, 1.0, 1.0),  // blue
-        color4(1.0, 0.0, 1.0, 1.0),  // magenta
-        color4(0.0, 0.0, 0.0, 1.0),  // black
-        color4(0.0, 1.0, 1.0, 1.0)   // cyan
+        color4(1.0, 1.0, 1.0, 0.5),  // white
+        color4(1.0, 0.0, 0.0, 0.5),  // red
+        color4(1.0, 1.0, 0.0, 0.5),  // yellow
+        color4(0.0, 1.0, 0.0, 0.5),  // green
+        color4(0.0, 0.0, 1.0, 0.5),  // blue
+        color4(1.0, 0.0, 1.0, 0.5),  // magenta
+        color4(0.0, 0.0, 0.0, 0.5),  // black
+        color4(0.0, 1.0, 1.0, 0.5)   // cyan
     };
     int Index = 0; 
 
 public:
     Render() { init(); }
     ~Render() {
-        glDeleteRenderbuffers(1, &depth);
+        // glDeleteRenderbuffers(1, &depth);
         glDeleteRenderbuffers(1, &color);
         glDeleteFramebuffers(1, &fb);
     }

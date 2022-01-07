@@ -34,7 +34,7 @@ void Render::print_frame() {
     printf("Done.\nPrinting frame %d...", i);
     
     std::ostringstream img_name;
-    img_name << "./frames/frame" << i << ".png";
+    img_name << "./frames/frame" << i << ".jpg";
     cv::imwrite(img_name.str(), image);
     printf("Done.\n");
     i++;
@@ -64,7 +64,7 @@ void Render::initShader()
 void Render::init() {
     glewInit();
     // initShader();
-
+    
 //correct setup thanks to https://github.com/cirosantilli/cpp-cheat/blob/70b22ac36f92e93c94f951edb8b5af7947546525/opengl/offscreen.c
 //1. Generate framebuffer to hold rendering destination
     glGenFramebuffers(1, &fb);
@@ -76,10 +76,10 @@ void Render::init() {
     errors::assertOpenGLError("glRenderbufferStorage");
     glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color);
     errors::assertOpenGLError("glFramebufferRenderbuffer");
-//3. Generate depth render buffer
+//3. Generate depth render buffer with 32 bit component to handle alpha as well
     glGenRenderbuffers(1, &depth);
     glBindRenderbuffer(GL_RENDERBUFFER, depth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
     glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
 //4.
     glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -88,7 +88,6 @@ void Render::init() {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //glPixelStorei sets pixel storage modes that affect the operation of subsequent glReadPixels
@@ -106,6 +105,9 @@ void Render::init() {
 
     print_stats();
     errors::CHECK_FRAMEBUFFER_STATUS();
+
+    // encoder->setCodecID(AV_CODEC_ID_MPEG1VIDEO);
+    // encoder->start("tmp.mpg", 25, width, height);
 }
 
 void Render::display() {
@@ -129,7 +131,7 @@ void Render::display() {
     glMatrixMode(GL_MODELVIEW);
 
     glLoadIdentity();
-    glRotatef(45.0f+angle, 1.0f, 1.0f, 0.0f);
+    glRotatef(50.0f+angle, 15.0f, 15.0f, 15.0f);
     glBegin(GL_TRIANGLES);
 
     int i = 0;
@@ -140,20 +142,12 @@ void Render::display() {
         i++;
     }
 
-    // glBegin(GL_TRIANGLES);
-
-    // glColor3f(distr(gen)/100.0,0,0);//blue channel
-    // glVertex3f(1,1,0);
-
-    // glColor3f(0,0,distr(gen)/100.0);//red channel
-    // glVertex3f(-1,1,0);
-
-    // glColor3f(0,distr(gen)/100.0,0);//green chsannel
-    // glVertex3f(0,-1,0);
     glEnd();
     glFlush();
 
     print_frame();
+    // encoder->glread_rgb(width, height);
+    // encoder->encode_frame();
 
     angle+=10.0f;
 }
