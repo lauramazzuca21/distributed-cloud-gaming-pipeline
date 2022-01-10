@@ -85,7 +85,7 @@ void print_EGL_info(EGLint major, EGLint  minor)
     std::cout << glGetString( GL_SHADING_LANGUAGE_VERSION ) << std::endl << std::endl;
 }
 
-int main(int argc, char *argv[])
+void run_EGL()
 {
     EGLDisplay eglDpy;
 	EGLint numConfigs;
@@ -149,5 +149,10 @@ int main(int argc, char *argv[])
     }
 
     terminate(&eglDpy, &eglCtx);
+}
+
+int main(int argc, char *argv[])
+{
+    run_EGL();
     return 1;
 }
