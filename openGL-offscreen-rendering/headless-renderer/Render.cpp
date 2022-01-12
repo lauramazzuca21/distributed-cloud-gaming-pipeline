@@ -34,8 +34,10 @@ void Render::print_frame() {
     printf("Done.\nPrinting frame %d...", i);
     
     std::ostringstream img_name;
-    img_name << "./frames/frame" << i << ".jpg";
-    file_handler::save_jpeg_from_buffer(img_name.str().c_str(), width, height, buffer);
+    img_name << "./frames/frame" << i << ".png";
+    file_handler::save_from_buffer(img_name.str().c_str(), width, height, buffer, file_handler::C_TYPE::PNG);
+    printf("Done.\n");
+
     i++;
     delete[] buffer;
 }

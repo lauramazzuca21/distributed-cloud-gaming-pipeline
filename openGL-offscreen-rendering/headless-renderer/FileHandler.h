@@ -1,7 +1,19 @@
-#include <jpeglib.h>
+#ifndef _FILE_HANDLER_H_
+#define _FILE_HANDLER_H_
+
+
 #include <stdio.h>
+#include <jpeglib.h> // ref to https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/main/libjpeg.txt
+#include <png.h>
+#include <zlib.h>
 
 namespace file_handler {
+
+enum C_TYPE {
+    JPEG,
+    PNG,
+    NONE
+};
 
     static void save_jpeg_from_buffer(const char * filename, 
                                         const int width, const int height, 
@@ -38,6 +50,71 @@ namespace file_handler {
         jpeg_finish_compress(&cinfo);
         fclose(outfile);
         jpeg_destroy_compress(&cinfo);
-        printf("Done.\n");
+    }
+
+    static void save_png_from_buffer(const char * filename, 
+                                        const int width, const int height, 
+                                        unsigned char * buffer) {
+        FILE *outfile = fopen(filename, "wb"); //write binary file
+        if (!outfile)
+            return;
+        
+        png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+        if (!png_ptr)
+        return;
+
+        png_infop info_ptr = png_create_info_struct(png_ptr);
+        if (!info_ptr)
+        {
+        png_destroy_write_struct(&png_ptr,
+            (png_infopp)NULL);
+        return;
+        }
+
+        //If you would rather avoid the complexity of setjmp/longjmp issues, you can compile libpng with PNG_NO_SETJMP
+
+        png_set_check_for_invalid_index(png_ptr, 0);
+        //set up the output code
+        png_init_io(png_ptr, outfile);
+
+        /* Set the zlib compression level */
+        png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+        /* Set the parameters for the image to write */
+        png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, 
+                    PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+        /* Proceed with compression */
+        png_bytepp rows = (png_bytepp)png_malloc(png_ptr, height * sizeof(png_bytep));
+        for (int i = 0; i < height; ++i)
+            rows[i] = (png_bytep)(buffer + (height - i - 1) * width * 4);
+
+        png_set_rows(png_ptr, info_ptr, rows);
+        png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+
+        /* now write the image */
+
+        png_write_image(png_ptr, rows);
+        png_write_end(png_ptr, info_ptr);
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+
+        fclose(outfile);
+        delete[] rows;
+    }
+
+    static void save_from_buffer(const char * filename, 
+                                    const int width, const int height, 
+                                    unsigned char * buffer, C_TYPE type) {
+        switch(type) {
+            case JPEG:
+                save_jpeg_from_buffer(filename, width, height, buffer);
+                break;
+            case PNG:
+                save_png_from_buffer(filename, width, height, buffer);
+                break;
+            default:
+                break;
+        }
     }
 }
+
+#endif
