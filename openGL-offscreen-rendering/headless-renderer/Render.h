@@ -18,14 +18,12 @@
 #include <unistd.h>
 
 #include "Errors.h"
-#include "camera.h"
+// #include "camera.h"
 
 #include <glm/glm.hpp>
 
 class Render
 {
-    // FFMPEGEncoder * encoder = new FFMPEGEncoder();
-
     float aspect;
 
     GLuint fb, color, depth;
@@ -38,7 +36,7 @@ class Render
     point4  vPositions[NumVertices];
     color4  vColors[NumVertices];
     glm::mat4 Projection, Model, View;
-    Camera * camera = new Camera();
+    // Camera * camera = new Camera();
 
     static const int	width = 800;
     static const int	height = 800;

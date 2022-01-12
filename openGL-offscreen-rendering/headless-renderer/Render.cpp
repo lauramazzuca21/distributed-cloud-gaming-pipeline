@@ -1,5 +1,5 @@
 #include "Render.h"
-#include "ShaderMaker.h"
+// #include "ShaderMaker.h"
 #include <glm/gtc/type_ptr.inl>
 
 void Render::print_stats() {
@@ -41,23 +41,23 @@ void Render::print_frame() {
 }
 void Render::initShader()
 {
-		GLenum ErrorCheckValue = glGetError();
+		// GLenum ErrorCheckValue = glGetError();
 
-		char* vertexShader = (char*)"vertexShader_C.glsl";
-		char* fragmentShader = (char*)"fragmentShader_C.glsl";
+		// char* vertexShader = (char*)"vertexShader_C.glsl";
+		// char* fragmentShader = (char*)"fragmentShader_C.glsl";
 
-		programId = shader_maker::createProgram(vertexShader, fragmentShader);
-		glUseProgram(programId);
+		// programId = shader_maker::createProgram(vertexShader, fragmentShader);
+		// glUseProgram(programId);
 
-        // Ottieni l'identificativo della variabile uniform mat4 Projection (in vertex shader).
-        //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Projection al Vertex Shader
-        MatProj = glGetUniformLocation(programId, "Projection");
-        // Ottieni l'identificativo della variabile uniform mat4 Model (in vertex shader)
-        //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Model al Vertex Shader
-        MatModel = glGetUniformLocation(programId, "Model");
-        //Ottieni l'identificativo della variabile uniform mat4 View (in vertex shader)
-        //Questo identificativo sarà poi utilizzato per il trasferimento della matrice View al Vertex Shader
-        MatView = glGetUniformLocation(programId, "View");
+        // // Ottieni l'identificativo della variabile uniform mat4 Projection (in vertex shader).
+        // //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Projection al Vertex Shader
+        // MatProj = glGetUniformLocation(programId, "Projection");
+        // // Ottieni l'identificativo della variabile uniform mat4 Model (in vertex shader)
+        // //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Model al Vertex Shader
+        // MatModel = glGetUniformLocation(programId, "Model");
+        // //Ottieni l'identificativo della variabile uniform mat4 View (in vertex shader)
+        // //Questo identificativo sarà poi utilizzato per il trasferimento della matrice View al Vertex Shader
+        // MatView = glGetUniformLocation(programId, "View");
 
 }
 
