@@ -1,6 +1,6 @@
 #include "Render.h"
+#include "FileHandler.h"
 // #include "ShaderMaker.h"
-#include <glm/gtc/type_ptr.inl>
 
 void Render::print_stats() {
     GLint red_bits, green_bits, blue_bits, alpha_bits;
@@ -26,18 +26,18 @@ void Render::print_stats() {
 
 void Render::print_frame() {
     static int i=0;
-    cv::Mat image(width,height, CV_8UC4);
+    unsigned char* buffer = new unsigned char[ width * height * 4 ];
 
     printf("Reading pixels...");
-    glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,image.data);
+    glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,buffer);
     errors::assertOpenGLError("glReadPixels");
     printf("Done.\nPrinting frame %d...", i);
     
     std::ostringstream img_name;
     img_name << "./frames/frame" << i << ".jpg";
-    cv::imwrite(img_name.str(), image);
-    printf("Done.\n");
+    file_handler::save_jpeg_from_buffer(img_name.str().c_str(), width, height, buffer);
     i++;
+    delete[] buffer;
 }
 void Render::initShader()
 {
@@ -112,9 +112,6 @@ void Render::init() {
 
 void Render::display() {
     static GLfloat angle = 0.0f; 
-    std::random_device rd; // obtain a random number from hardware
-    std::mt19937 gen(rd()); // seed the generator
-    std::uniform_int_distribution<> distr(0, 100); // define the range
 
     // //Passo al Vertex Shader il puntatore alla matrice Projection, che sarà associata alla variabile Uniform mat4 Projection
 	// //all'interno del Vertex shader. Uso l'identificatio MatProj

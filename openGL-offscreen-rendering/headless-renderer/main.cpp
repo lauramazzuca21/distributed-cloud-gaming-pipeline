@@ -2,6 +2,8 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <array>
+#include <iostream>
 
 static const std::array<EGLint, 13> context_attrib {
     EGL_CONTEXT_CLIENT_VERSION, 3,
@@ -135,7 +137,6 @@ void run_EGL()
     } catch(const std::exception& e) {
         printf("ERROR %s\n\n TERMINATE\n", e.what());
         terminate(&eglDpy, &eglCtx);
-        return 0;
     }
     
     print_EGL_info(major, minor);

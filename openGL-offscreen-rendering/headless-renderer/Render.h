@@ -1,26 +1,14 @@
 #ifndef _RENDER_H_
 #define _RENDER_H_
 
-/*
- * OpenCV for saving the render target as an image file.
- */
-#include <opencv2/opencv.hpp>
-
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <random>
-
 #include <stdlib.h>
-#include <assert.h>
 #include <stdio.h>
-#include <unistd.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.inl>
 
 #include "Errors.h"
 // #include "camera.h"
-
-#include <glm/glm.hpp>
 
 class Render
 {
