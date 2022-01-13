@@ -60,7 +60,7 @@ cd bin
 ## Dependencies
 The libraries used in this application can be installed running the following cmd:
 ```bash
-sudo apt install mesa-utils mesa-common-dev libglapi-mesa libegl1-mesa-dev libegl-dev
+sudo apt install mesa-utils mesa-common-dev libglapi-mesa libegl1-mesa-dev libegl-dev libjpeg-turbo8-dev libpng-dev
 ```
 ## Application
 To install the application run:

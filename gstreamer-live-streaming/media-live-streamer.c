@@ -178,7 +178,7 @@ create_receiver_entry (SoupWebsocketConnection * connection)
   receiver_entry->pipeline =
       gst_parse_launch ("webrtcbin name=webrtcbin stun-server=stun://"
       STUN_SERVER " "
-      "gltestsrc is-live=true pattern=mandelbrot ! gldownload ! queue max-size-buffers=1 ! videoparse width=320 height=240 format=11 !"
+      "gltestsrc is-live=true pattern=mandelbrot ! gldownload ! queue max-size-buffers=1 ! rawvideoparse width=320 height=240 format=11 !"
       " videoconvert ! video/x-raw, format=YV12 ! x264enc bitrate=600 speed-preset=ultrafast tune=zerolatency key-int-max=15 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
       "rtph264pay config-interval=-1 name=payloader aggregate-mode=zero-latency ! "
       "application/x-rtp,media=video,encoding-name=H264,payload="
