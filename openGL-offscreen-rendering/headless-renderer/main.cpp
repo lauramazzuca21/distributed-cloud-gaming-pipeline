@@ -5,7 +5,7 @@
 #include <array>
 #include <iostream>
 
-static const std::array<EGLint, 13> context_attrib {
+static const EGLint context_attrib[] = {
     EGL_CONTEXT_CLIENT_VERSION, 3,
     EGL_CONTEXT_MAJOR_VERSION, 4,
     EGL_CONTEXT_MINOR_VERSION, 5,
@@ -15,7 +15,7 @@ static const std::array<EGLint, 13> context_attrib {
     EGL_NONE
 };
 
-static const std::array<EGLint, 13> config_Attrib {
+static const EGLint config_Attrib[] = {
     EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
     EGL_BLUE_SIZE, 8,
     EGL_GREEN_SIZE, 8,
@@ -25,13 +25,14 @@ static const std::array<EGLint, 13> config_Attrib {
     EGL_NONE
 };
 
-static const EGLint streamAttrFIFOMode[] = { 
-    EGL_STREAM_FIFO_LENGTH_KHR, 4,
-    EGL_METADATA0_SIZE_NV, 16*1024,
-    EGL_METADATA1_SIZE_NV, 16*1024,
-    EGL_METADATA2_SIZE_NV, 16*1024,
-    EGL_METADATA3_SIZE_NV, 16*1024, EGL_NONE 
-};
+  static const int pbufferWidth = 9;
+  static const int pbufferHeight = 9;
+
+  static const EGLint surface_attrib[] = {
+        EGL_WIDTH, pbufferWidth,
+        EGL_HEIGHT, pbufferHeight,
+        EGL_NONE,
+  };
 
 void terminate(EGLDisplay * eglDpy, EGLContext * eglCtx)
 {
@@ -71,7 +72,7 @@ EGLBoolean platform_specific_EGLdisplay(EGLDisplay * eglDpy, EGLint * numConfigs
     EGLBoolean found = EGL_FALSE;
     for( EGLint i = 0; (EGL_FALSE == found) && (i < numDevices); ++i ){
         (*eglDpy) = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevs[i], 0);
-        found =  eglInitialize(eglDpy, major, minor); //eglChooseConfig((*eglDpy), config_Attrib.data(), eglCfg, 1, numConfigs);
+        found =  eglInitialize(eglDpy, major, minor); 
         printf("device %i - initialize result %d\n", i, found ? 1 : 0);
     }
 
@@ -90,6 +91,7 @@ void print_EGL_info(EGLint major, EGLint  minor)
 void run_EGL()
 {
     EGLDisplay eglDpy;
+    EGLSurface surface;
 	EGLint numConfigs;
     EGLConfig eglCfg;
     EGLContext eglCtx;
@@ -110,15 +112,7 @@ void run_EGL()
             printf("Done with PLATFORM SPECIFIC DISPLAY\n\n");
         }
 
-        // PFNEGLCREATESTREAMKHRPROC eglCreateStreamKHR = (PFNEGLCREATESTREAMKHRPROC)eglGetProcAddress("eglCreateStreamKHR");
-        // printf("Creating EGLStrem... ");  
-        // EGLStreamKHR eglStream = eglCreateStreamKHR(eglDpy, nullptr);
-        // if (eglStream == EGL_NO_STREAM_KHR) {
-        //     errors::assertEGLError("eglCreateStreamKHR");
-        // }
-        // printf("Done.\n");
-
-        eglChooseConfig(eglDpy, config_Attrib.data(), &eglCfg, 1, &numConfigs);
+        eglChooseConfig(eglDpy, config_Attrib, &eglCfg, 1, &numConfigs);
         errors::assertEGLError("eglChooseConfig");
 
         // 3. Bind the API
@@ -126,12 +120,11 @@ void run_EGL()
         errors::assertEGLError("eglBindAPI");
 
         // 3. Create a context and make it current
-        eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, context_attrib.data());
+        eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, context_attrib);
         errors::assertEGLError("eglCreateContext");
-
-        // PFNEGLCREATESTREAMPRODUCERSURFACEKHRPROC eglCreateStreamProducerSurfaceKHR = (PFNEGLCREATESTREAMPRODUCERSURFACEKHRPROC)eglGetProcAddress("eglCreateStreamProducerSurfaceKHR");
-        // EGLSurface surface = eglCreateStreamProducerSurfaceKHR(eglDpy, eglCfg, eglStream, nullptr);
-
+        /* create an EGL pbuffer surface */
+        // surface = eglCreatePbufferSurface(eglDpy, eglCfg, surface_attrib);
+        // errors::assertEGLError("eglCreatePbufferSurface");
         eglMakeCurrent(eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, eglCtx);
         errors::assertEGLError("eglMakeCurrent");
     } catch(const std::exception& e) {
