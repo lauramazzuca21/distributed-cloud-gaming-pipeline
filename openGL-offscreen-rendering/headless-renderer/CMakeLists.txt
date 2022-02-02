@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(EGL-Test)
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 file(GLOB SRCs
      "*.h"
@@ -13,8 +15,6 @@ add_executable(main ${SRCs})
 find_package(PkgConfig) 
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL GLX)
 find_package(GLEW REQUIRED)
-find_package(JPEG REQUIRED)
-find_package(PNG REQUIRED)
 # pkg_search_module(GLIB REQUIRED glib-2.0) 
 # pkg_check_modules(GSTREAMER REQUIRED gstreamer-1.0 gstreamer-app-1.0 gstreamer-video-1.0 gstreamer-gl-1.0)
 include_directories(
@@ -35,4 +35,4 @@ include_directories(
 add_compile_options(
        -PNG_NO_SETJMP
 )
-target_link_libraries(main PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLEW_LIBRARIES} ${JPEG_LIBRARIES} ${PNG_LIBRARIES}) # ${GSTREAMER_LIBRARIES}
+target_link_libraries(main PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLEW_LIBRARIES}) # ${GSTREAMER_LIBRARIES}

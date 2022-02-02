@@ -1,6 +1,11 @@
 #include "Render.h"
-#include "FileHandler.h"
-// #include "ShaderMaker.h"
+#include "ShaderMaker.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 void Render::print_stats() {
     GLint red_bits, green_bits, blue_bits, alpha_bits;
@@ -14,7 +19,7 @@ void Render::print_stats() {
         (int)red_bits,
         (int)green_bits,
         (int)blue_bits,
-        (int)alpha_bits );
+        (int)alpha_bits );  
 
     GLint imp_fmt, imp_type;
 
@@ -35,39 +40,39 @@ void Render::print_frame() {
     
     std::ostringstream img_name;
     img_name << "./frames/frame" << i << ".png";
-    file_handler::save_from_buffer(img_name.str().c_str(), width, height, buffer, file_handler::C_TYPE::PNG);
+    // stbi_write_jpg(img_name.str().c_str(), width, height, 4, buffer, 300);
+    stbi_write_png(img_name.str().c_str(), width, height, 4, buffer, 0);
     printf("Done.\n");
 
     i++;
     delete[] buffer;
 }
+
 void Render::initShader()
 {
-		// GLenum ErrorCheckValue = glGetError();
+    GLenum ErrorCheckValue = glGetError();
 
-		// char* vertexShader = (char*)"vertexShader_C.glsl";
-		// char* fragmentShader = (char*)"fragmentShader_C.glsl";
+    std::string vertexShader = "shaders/v_passthrough.glsl";
+    std::string fragmentShader = "shaders/f_passthrough.glsl";
 
-		// programId = shader_maker::createProgram(vertexShader, fragmentShader);
-		// glUseProgram(programId);
+    programId = shader_maker::createProgram(vertexShader.c_str(), fragmentShader.c_str());
+    glUseProgram(programId);
 
-        // // Ottieni l'identificativo della variabile uniform mat4 Projection (in vertex shader).
-        // //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Projection al Vertex Shader
-        // MatProj = glGetUniformLocation(programId, "Projection");
-        // // Ottieni l'identificativo della variabile uniform mat4 Model (in vertex shader)
-        // //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Model al Vertex Shader
-        // MatModel = glGetUniformLocation(programId, "Model");
-        // //Ottieni l'identificativo della variabile uniform mat4 View (in vertex shader)
-        // //Questo identificativo sarà poi utilizzato per il trasferimento della matrice View al Vertex Shader
-        // MatView = glGetUniformLocation(programId, "View");
+    // Ottieni l'identificativo della variabile uniform mat4 Projection (in vertex shader).
+    //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Projection al Vertex Shader
+    MatProj = glGetUniformLocation(programId, "P");
+    // Ottieni l'identificativo della variabile uniform mat4 Model (in vertex shader)
+    //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Model al Vertex Shader
+    MatModel = glGetUniformLocation(programId, "M");
+    //Ottieni l'identificativo della variabile uniform mat4 View (in vertex shader)
+    //Questo identificativo sarà poi utilizzato per il trasferimento della matrice View al Vertex Shader
+    MatView = glGetUniformLocation(programId, "V");
+    glUniform4fv(glGetUniformLocation(programId, "Color"), 1, value_ptr(glm::vec4(1.0, 0.0, 0.0, 1.0)));
 
 }
 
-void Render::init() {
-    glewInit();
-    // initShader();
-    
-//correct setup thanks to https://github.com/cirosantilli/cpp-cheat/blob/70b22ac36f92e93c94f951edb8b5af7947546525/opengl/offscreen.c
+void Render::initBuffers() {
+    //correct setup thanks to https://github.com/cirosantilli/cpp-cheat/blob/70b22ac36f92e93c94f951edb8b5af7947546525/opengl/offscreen.c
 //1. Generate framebuffer to hold rendering destination
     glGenFramebuffers(1, &fb);
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
@@ -85,101 +90,51 @@ void Render::init() {
     glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
 //4.
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    
+}
+
+void Render::init() {
+    glewInit();
+
+    initShader();
+    initBuffers();
+
+    model = new Model("meshes/bunny.obj", "bunny");
+
 //5. setup background
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_ALPHA_TEST);
+    glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glViewport(0, 0, width, height);
 
     //glPixelStorei sets pixel storage modes that affect the operation of subsequent glReadPixels
     // as well as the unpacking of texture patterns (see glTexImage2D and glTexSubImage2D). 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    // glOrtho(0.0f, width, height, 0.0f, zNear, zFar);
-	// Projection = glm::perspective(glm::radians((float)fov), (float)(width) / float(height), zNear, zFar);
-    // glLoadMatrixf((const float*)glm::value_ptr(Projection));
-    glMatrixMode(GL_MODELVIEW);
-
-    Cube();
 
     print_stats();
     errors::CHECK_FRAMEBUFFER_STATUS();
-
-    // encoder->setCodecID(AV_CODEC_ID_MPEG1VIDEO);
-    // encoder->start("tmp.mpg", 25, width, height);
 }
 
 void Render::display() {
-    static GLfloat angle = 0.0f; 
 
-    // //Passo al Vertex Shader il puntatore alla matrice Projection, che sarà associata alla variabile Uniform mat4 Projection
-	// //all'interno del Vertex shader. Uso l'identificatio MatProj
-	// Projection = glm::perspective(glm::radians((float)fov), (float)(width) / float(height), zNear, zFar);
-	// glUniformMatrix4fv(MatProj, 1, GL_FALSE, glm::value_ptr(Projection));
-	// //Costruisco la matrice di Vista che applicata ai vertici in coordinate mondo WCS
-	// //li trasforma nel sistema di riferimento della camera VCS.
-	// // usage: lookAt(eye,at,up);
-	// View = camera->GetViewMatrix();
-	// glUniformMatrix4fv(MatView, 1, GL_FALSE, glm::value_ptr(View));
+	//Passo al Vertex Shader il puntatore alla matrice Projection, che sar� associata alla variabile Uniform mat4 Projection
+	//all'interno del Vertex shader. Uso l'identificatio MatProj
+	Projection = glm::perspective(glm::radians((float)fov), (float)(width) / float(height), zNear, zFar);
+	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
+	//Costruisco la matrice di Vista che applicata ai vertici in coordinate mondo WCS
+	//li trasforma nel sistema di riferimento della camera VCS.
+	// usage: lookAt(eye,at,up);
+	View = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	glUniformMatrix4fv(MatView, 1, GL_FALSE, value_ptr(View));
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
-    glMatrixMode(GL_MODELVIEW);
+    model->Draw(&MatModel);
 
-    glLoadIdentity();
-    glRotatef(50.0f+angle, 15.0f, 15.0f, 15.0f);
-    glBegin(GL_TRIANGLES);
+    glFinish();
+    errors::assertOpenGLError("glFinish");
 
-    int i = 0;
-    while (i<Index)
-    {
-        glColor4f(vColors[i][0], vColors[i][1], vColors[i][2], vColors[i][3]);//blue channel
-        glVertex3f(vPositions[i][0], vPositions[i][1], vPositions[i][2]);
-        i++;
-    }
-
-    glEnd();
-    glFlush();
 
     print_frame();
-    // encoder->glread_rgb(width, height);
-    // encoder->encode_frame();
-
-    angle+=10.0f;
-}
-
-void Render::polygon_multicolor(int a, int b, int c, int d)
-{
-    vColors[Index] = colors[a]; vPositions[Index] = positions[a]; Index++;
-    vColors[Index] = colors[b]; vPositions[Index] = positions[b]; Index++;
-    vColors[Index] = colors[c]; vPositions[Index] = positions[c]; Index++;
-    
-    vColors[Index] = colors[a]; vPositions[Index] = positions[a]; Index++;
-    vColors[Index] = colors[c]; vPositions[Index] = positions[c]; Index++;
-    vColors[Index] = colors[d]; vPositions[Index] = positions[d]; Index++;
-}
-
-//create two triangles for each face and assigns colors to the vertices
-void Render::polygon_monocolor(int a, int b, int c, int d)
-{
-    vColors[Index] = colors[a]; vPositions[Index] = positions[a]; Index++;
-    vColors[Index] = colors[a]; vPositions[Index] = positions[b]; Index++;
-    vColors[Index] = colors[a]; vPositions[Index] = positions[c]; Index++;
-    
-    vColors[Index] = colors[a]; vPositions[Index] = positions[a]; Index++;
-    vColors[Index] = colors[a]; vPositions[Index] = positions[c]; Index++;
-    vColors[Index] = colors[a]; vPositions[Index] = positions[d]; Index++;
-}
-
-void Render::Cube()
-{
-    polygon_monocolor(1, 0, 3, 2);
-    polygon_monocolor(2, 3, 7, 6);
-    polygon_monocolor(3, 0, 4, 7);
-    polygon_monocolor(6, 5, 1, 2);
-    polygon_monocolor(4, 5, 6, 7);
-    polygon_monocolor(5, 4, 0, 1);
 }

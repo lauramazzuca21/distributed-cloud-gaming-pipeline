@@ -36,6 +36,7 @@ static const EGLint config_Attrib[] = {
 
 void terminate(EGLDisplay * eglDpy, EGLContext * eglCtx)
 {
+    printf("Terminating... \n");  
     // 4. Terminate EGL when finished
     if (*eglCtx != EGL_NO_CONTEXT)
     {
@@ -134,8 +135,11 @@ void run_EGL()
     
     print_EGL_info(major, minor);
 
-    // from now on use your OpenGL context
+    // from now on use your OpenGL 
+    printf("Creating Render class...\n");  
     Render * render = new Render();
+    printf("Done.\nStarting loop...");  
+
     int i = 0;
     while(i<10) {
         render->display();
