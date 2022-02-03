@@ -8,21 +8,28 @@
 
 void Render::printFrame() {
     static int i=0;
-    unsigned char* buffer = new unsigned char[ width * height * 4 ];
+    std::vector<uint8_t> pixels(width * height * 4);
 
     printf("Reading pixels...");
-    glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,buffer);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+    for(int line = 0; line != height/2; ++line) {
+        std::swap_ranges(
+                pixels.begin() + 4 * width * line,
+                pixels.begin() + 4 * width * (line+1),
+                pixels.begin() + 4 * width * (height-line-1));
+    }
     logUtils::errors::assertOpenGLError("glReadPixels");
     printf("Done.\nPrinting frame %d...", i);
     
     std::ostringstream img_name;
     img_name << "./frames/frame" << i << ".png";
     // stbi_write_jpg(img_name.str().c_str(), width, height, 4, buffer, 300);
-    stbi_write_png(img_name.str().c_str(), width, height, 4, buffer, 0);
+    stbi_write_png(img_name.str().c_str(), width, height, 4, pixels.data(), 0);
     printf("Done.\n");
 
     i++;
-    delete[] buffer;
+    pixels.clear();
 }
 
 void Render::initBuffers() {
@@ -51,7 +58,7 @@ void Render::init() {
 
     initBuffers();
 
-    model = new Model("meshes/bunny.obj", "bunny", Constants::ShadingType::PHONG);
+    model = new Dragon("xyzrgb_dragon", Constants::ShadingType::PHONG);
 
     if (loadedShaders.find(model->getShaderType()) == loadedShaders.end()) {
         ShaderProgram * current = new ShaderProgram(model->getShaderType());

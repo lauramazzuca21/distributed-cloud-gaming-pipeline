@@ -15,6 +15,12 @@ namespace Constants {
         {ShadingType::TOON, {"shaders/v_toon.glsl","shaders/f_toon.glsl"}},
         {ShadingType::WAVE, {"shaders/v_wave.glsl","shaders/f_wave.glsl"}}
     };
+
+    static const std::map<VectorType, glm::vec3> axisVectors = {
+        {VectorType::X, glm::vec3(1.0f, 0.0f, 0.0f)},
+        {VectorType::Y, glm::vec3(0.0f, 1.0f, 0.0f)},
+        {VectorType::Z, glm::vec3(0.0f, 0.0f, 1.0f)}
+    };
 }
 
 #endif

@@ -9,7 +9,7 @@
 #include <glm/gtc/type_ptr.inl>
 
 #include "LogUtils.h"
-#include "Model.h"
+#include "Dragon.h"
 #include "ShaderProgram.h"
 #include "Light.h"
 
@@ -19,11 +19,11 @@ class Render
 
     GLuint fb, color, depth;
 
-    static const int	width = 800;
-    static const int	height = 800;
+    static const int	width = 1920;
+    static const int	height = 1200;
 
     Light * light = new Light();
-    Model * model;
+    Dragon * model;
     std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
 
     glm::mat4 Projection, View;

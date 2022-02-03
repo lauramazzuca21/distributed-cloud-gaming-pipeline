@@ -7,10 +7,10 @@ Model::Model(std::string filePath, std::string name, Constants::ShadingType shad
     _mesh = new Mesh(filePath);
 
     _M = glm::mat4(1.0);
-    _M = glm::translate(_M, glm::vec3(0.0f,   0.0f,  0.0f));
-    _M = glm::rotate(_M, glm::radians(_rotAngles.x), glm::vec3(1.0f, 0.0f, 0.0f)); 
-    _M = glm::rotate(_M, glm::radians(_rotAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    _M = glm::rotate(_M, glm::radians(_rotAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    _M = glm::translate(_M, glm::vec3(0.0f));
+    _M = glm::rotate(_M, glm::radians(_rotAngles.x), Constants::axisVectors.at(Constants::VectorType::X)); 
+    _M = glm::rotate(_M, glm::radians(_rotAngles.y), Constants::axisVectors.at(Constants::VectorType::Y));
+    _M = glm::rotate(_M, glm::radians(_rotAngles.z), Constants::axisVectors.at(Constants::VectorType::Z));
     //scale factors are applied to the model
     _M = glm::scale(_M, _scale);
 }
@@ -19,68 +19,73 @@ void Model::draw(ShaderProgram * shaderProgram, glm::mat4 view, glm::mat4 projec
     
     shaderProgram->setUniformMatrix4("P_Matrix_pointer", projection);
     shaderProgram->setUniformMatrix4("V_Matrix_pointer", view);
-        
-    rotateOCS(glm::vec3(1.0f, 0.0f, 0.0f), _rotAngles.x);
-    rotateOCS(glm::vec3(0.0f, 1.0f, 0.0f), _rotAngles.y);
-    rotateOCS(glm::vec3(0.0f, 0.0f, 1.0f), _rotAngles.z);
-
-    //Passo al Vertex Shader il puntatore alla matrice _M, che sar� associata alla variabile Uniform mat4 _M
-    //all'interno del Vertex shader. Uso l'identificatio MatModel
     shaderProgram->setUniformMatrix4("M_Matrix_pointer", _M);
 
-    shaderProgram->setUniformVector3("material_diffuse", _material.diffuse);
-    shaderProgram->setUniformVector3("material_ambient", _material.ambient);
-    shaderProgram->setUniformVector3("material_specular", _material.specular);
-    shaderProgram->setUniformFloat("material_shininess", _material.shininess);
+    shaderProgram->setUniformVector3("material_diffuse", getMaterial().diffuse);
+    shaderProgram->setUniformVector3("material_ambient", getMaterial().ambient);
+    shaderProgram->setUniformVector3("material_specular", getMaterial().specular);
+    shaderProgram->setUniformFloat("material_shininess", getMaterial().shininess);
 
     _mesh->draw();
-
-    _rotAngles.x += 1.0f;
 }
 
-void Model::rotateOCS(glm::vec3 rotation_vector, GLfloat angle)
+void Model::rotateOCS(Constants::VectorType rotationVector, GLfloat angle)
 {
-    _M *= glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation_vector);
+    GLfloat newAngle = 0.0f;
+    switch(rotationVector) {
+        case Constants::VectorType::X:
+            _rotAngles.x += angle;
+            newAngle = _rotAngles.x;
+            break;        
+        case Constants::VectorType::Y:
+            _rotAngles.y += angle;
+            newAngle = _rotAngles.y;
+            break;
+        case Constants::VectorType::Z:
+            _rotAngles.z += angle;
+            newAngle = _rotAngles.z;
+            break;
+    }
+
+    _M *= glm::rotate(glm::mat4(1.0f), glm::radians(newAngle), Constants::axisVectors.at(rotationVector));
 }
 
-void Model::scaleOCS(glm::vec3 scale_factor) {
-    _M *= glm::scale(glm::mat4(1.0f), glm::vec3(scale_factor));
+void Model::scaleOCS(glm::vec3 scaleFactor) {
+    _scale = glm::vec3(scaleFactor);
+    _M *= glm::scale(glm::mat4(1.0f), _scale);
 }
 
-void Model::translateOCS(glm::vec3 translation_vector) {
-    _M *= glm::translate(glm::mat4(1.0f), translation_vector);
+void Model::translateOCS(glm::vec3 translationVector) {
+    _M *= glm::translate(glm::mat4(1.0f), translationVector);
 }
 
-void Model::rotateWCS(glm::vec3 rotation_vector, GLfloat angle)
+void Model::rotateWCS(Constants::VectorType rotationVector, GLfloat angle)
 {
     glm::mat4 currentM = _M;
     glm::mat4 inverseAxisM = glm::inverse(_M);
     //transform my object Model matrix in world basis which is I=MM^-1
     _M *= inverseAxisM;
     //make modifications
-    _M *= glm::rotate(glm::mat4(1.0f), glm::radians(angle), rotation_vector);
+    rotateOCS(rotationVector, angle);
     //transform coord system back to OCS
     _M *= currentM;
 }
 
-void Model::scaleWCS(glm::vec3 scale_factor) {
+void Model::scaleWCS(glm::vec3 scaleFactor) {
     glm::mat4 currentM = _M;
     glm::mat4 inverseAxisM = glm::inverse(_M);
     //transform my object Model matrix in world basis which is I=MM^-1
     _M *= inverseAxisM;
-
-    _M *= glm::scale(glm::mat4(1.0f), glm::vec3(scale_factor));
-
+    scaleOCS(scaleFactor);
     _M *= currentM;
 }
 
-void Model::translateWCS(glm::vec3 translation_vector) {
+void Model::translateWCS(glm::vec3 translationVector) {
     glm::mat4 currentM = _M;
     glm::mat4 inverseAxisM = glm::inverse(_M);
     //transform my object Model matrix in world basis which is I=MM^-1
     _M *= inverseAxisM;
-
-    _M *= glm::translate(glm::mat4(1.0f), translation_vector);
+    translateOCS(translationVector);
     _M *= currentM;
 }
 

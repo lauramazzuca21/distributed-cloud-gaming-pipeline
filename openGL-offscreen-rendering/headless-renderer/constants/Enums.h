@@ -3,23 +3,29 @@
 
 
 namespace Constants {
-    typedef enum {
+    enum ShadingType {
         GOURAUD,
         PHONG,
         BLINN,
         TOON,
         PASS_THROUGH,
         WAVE
-    } ShadingType;
+    };
 
-    typedef enum {
+    enum MaterialType {
         RED_PLASTIC,
         EMERALD,
         BRASS,
         SLATE,
         YELLOW_RUBBER,
         NO_MATERIAL
-    } MaterialType;
+    };
+
+    enum VectorType {
+        X,
+        Y,
+        Z
+    };
 }
 
 #endif
