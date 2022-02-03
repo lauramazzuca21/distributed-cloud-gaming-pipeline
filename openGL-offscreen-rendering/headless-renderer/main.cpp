@@ -41,13 +41,13 @@ void terminate(EGLDisplay * eglDpy, EGLContext * eglCtx)
     if (*eglCtx != EGL_NO_CONTEXT)
     {
         eglDestroyContext(*eglDpy, *eglCtx);
-	    errors::assertEGLError("eglDestroyContext");
+	    logUtils::errors::assertEGLError("eglDestroyContext");
     }
 	
     if (*eglDpy != EGL_NO_DISPLAY)
     {
         eglTerminate(*eglDpy);
-        errors::assertEGLError("eglTerminate");
+        logUtils::errors::assertEGLError("eglTerminate");
     }
 }
 
@@ -103,9 +103,9 @@ void run_EGL()
         if (platform_specific_EGLdisplay(&eglDpy, &numConfigs, &eglCfg, &major, &minor) != EGL_TRUE)
         {
             eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-            errors::assertEGLError("eglGetDisplay");
+            logUtils::errors::assertEGLError("eglGetDisplay");
             eglInitialize(eglDpy, &major, &minor);
-            errors::assertEGLError("eglInitialize");
+            logUtils::errors::assertEGLError("eglInitialize");
             printf("Done with EGL_DEFAULT_DISPLAY\n\n");
         }
         else
@@ -114,20 +114,20 @@ void run_EGL()
         }
 
         eglChooseConfig(eglDpy, config_Attrib, &eglCfg, 1, &numConfigs);
-        errors::assertEGLError("eglChooseConfig");
+        logUtils::errors::assertEGLError("eglChooseConfig");
 
         // 3. Bind the API
         eglBindAPI(EGL_OPENGL_API);
-        errors::assertEGLError("eglBindAPI");
+        logUtils::errors::assertEGLError("eglBindAPI");
 
         // 3. Create a context and make it current
         eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, context_attrib);
-        errors::assertEGLError("eglCreateContext");
+        logUtils::errors::assertEGLError("eglCreateContext");
         /* create an EGL pbuffer surface */
         // surface = eglCreatePbufferSurface(eglDpy, eglCfg, surface_attrib);
-        // errors::assertEGLError("eglCreatePbufferSurface");
+        // logUtils::errors::assertEGLError("eglCreatePbufferSurface");
         eglMakeCurrent(eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, eglCtx);
-        errors::assertEGLError("eglMakeCurrent");
+        logUtils::errors::assertEGLError("eglMakeCurrent");
     } catch(const std::exception& e) {
         printf("ERROR %s\n\n TERMINATE\n", e.what());
         terminate(&eglDpy, &eglCtx);

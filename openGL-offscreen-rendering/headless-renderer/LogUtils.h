@@ -1,5 +1,5 @@
-#ifndef _ERRORS_H_
-#define _ERRORS_H_
+#ifndef _LOG_UTILS_H_
+#define _LOG_UTILS_H_
 
 #include <sstream>
 #include <stdexcept>
@@ -8,6 +8,7 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext.h>
 
+namespace logUtils {
 
 namespace errors {
 
@@ -74,7 +75,7 @@ namespace errors {
         }
     }
 
-    static void CHECK_FRAMEBUFFER_STATUS()
+    static void checkFramebufferStatus()
     {                                                         
         GLenum status;
         status = glCheckFramebufferStatus(GL_FRAMEBUFFER); 
@@ -99,4 +100,28 @@ namespace errors {
 
 }
 
-#endif		//_ERRORS_H_
+    static void printStats() {
+        GLint red_bits, green_bits, blue_bits, alpha_bits;
+
+        glGetIntegerv(GL_RED_BITS,   &red_bits);
+        glGetIntegerv(GL_GREEN_BITS, &green_bits);
+        glGetIntegerv(GL_BLUE_BITS,  &blue_bits);
+        glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
+
+        fprintf(stderr, "FBO format R%dG%dB%dA%d\n",
+            (int)red_bits,
+            (int)green_bits,
+            (int)blue_bits,
+            (int)alpha_bits );  
+
+        GLint imp_fmt, imp_type;
+
+        glGetIntegerv (GL_IMPLEMENTATION_COLOR_READ_FORMAT, &imp_fmt);
+        glGetIntegerv (GL_IMPLEMENTATION_COLOR_READ_TYPE,   &imp_type);
+
+        printf ("Supported Color Format/Type: %x/%x\n", imp_fmt, imp_type);
+    }
+
+}
+
+#endif		//_LOG_UTILS_H_

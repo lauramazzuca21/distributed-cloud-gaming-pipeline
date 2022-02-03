@@ -6,7 +6,7 @@ Mesh::Mesh(const std::string& filePath) {
     generateAndLoadBuffers();
 }
 
-void Mesh::Draw() {
+void Mesh::draw() {
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
@@ -14,7 +14,7 @@ void Mesh::Draw() {
     //draws only the trinagle's lines
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawArrays(GL_TRIANGLES, 0, _vertices.size());
-    errors::assertOpenGLError("glDrawArrays");
+    logUtils::errors::assertOpenGLError("glDrawArrays");
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);

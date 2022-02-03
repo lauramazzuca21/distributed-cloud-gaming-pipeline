@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <fstream>
 
-#include "Errors.h"
+#include "LogUtils.h"
 
 class Mesh {
 	std::vector<glm::vec3> _vertices;
@@ -21,7 +21,7 @@ class Mesh {
 
     public:
         Mesh(const std::string& filePath);
-        void Draw();
+        void draw();
     private:
         void loadFromFile(const std::string& filePath);
         void computeNormal(std::vector<GLuint> * normalIndices, std::vector<glm::vec3> * tempNormals,
