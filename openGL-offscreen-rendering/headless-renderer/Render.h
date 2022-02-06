@@ -8,44 +8,44 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.inl>
 
-#include "LogUtils.h"
+#include "graphics/glLogUtils.h"
+#include "graphics/ContextEGL.h"
+#include "graphics/ShaderProgram.h"
+#include "graphics/Light.h"
+#include "graphics/Camera.h"
 #include "Dragon.h"
-#include "ShaderProgram.h"
-#include "Light.h"
+
+
 
 class Render
 {
-    float aspect;
 
     GLuint fb, color, depth;
 
     static const int	width = 1920;
     static const int	height = 1200;
+    float aspect = width/height*1.0f;
+
+    ContextEGL* ctxt = new ContextEGL();
 
     Light * light = new Light();
+    Camera * camera = new Camera();
     Dragon * model;
     std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
 
     glm::mat4 Projection, View;
 
-    //CAMERA STUFF
-    static const int fov = 45;
-    static constexpr float	zNear = 0.01f;
-    static constexpr float	zFar = 10000.0f;
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    int Index = 0; 
-
 public:
     Render() { 
+        ctxt->init();
         init(); 
         }
     ~Render() {
         glDeleteRenderbuffers(1, &depth);
         glDeleteRenderbuffers(1, &color);
         glDeleteFramebuffers(1, &fb);
+
+        ctxt->terminate();
     }
     void display();
 private:

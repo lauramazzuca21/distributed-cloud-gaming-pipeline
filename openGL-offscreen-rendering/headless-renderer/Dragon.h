@@ -1,7 +1,7 @@
 #ifndef _DRAGON_H_
 #define _DRAGON_H_
 
-#include "Model.h"
+#include "graphics/Model.h"
 
 class Dragon : public Model {
 

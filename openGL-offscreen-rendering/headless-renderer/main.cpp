@@ -3,154 +3,71 @@
 #include <math.h>
 #include <stdio.h>
 #include <array>
-#include <iostream>
 
-static const EGLint context_attrib[] = {
-    EGL_CONTEXT_CLIENT_VERSION, 3,
-    EGL_CONTEXT_MAJOR_VERSION, 4,
-    EGL_CONTEXT_MINOR_VERSION, 5,
-    EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT, //core profile gives segmentation fault in readPixels
-    EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_FALSE,
-    EGL_CONTEXT_OPENGL_DEBUG, EGL_FALSE,
-    EGL_NONE
-};
 
-static const EGLint config_Attrib[] = {
-    EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-    EGL_BLUE_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_RED_SIZE, 8,
-    EGL_DEPTH_SIZE, 8,
-    EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-    EGL_NONE
-};
-
-  static const int pbufferWidth = 9;
-  static const int pbufferHeight = 9;
-
-  static const EGLint surface_attrib[] = {
-        EGL_WIDTH, pbufferWidth,
-        EGL_HEIGHT, pbufferHeight,
-        EGL_NONE,
-  };
-
-void terminate(EGLDisplay * eglDpy, EGLContext * eglCtx)
-{
-    printf("Terminating... \n");  
-    // 4. Terminate EGL when finished
-    if (*eglCtx != EGL_NO_CONTEXT)
-    {
-        eglDestroyContext(*eglDpy, *eglCtx);
-	    logUtils::errors::assertEGLError("eglDestroyContext");
-    }
-	
-    if (*eglDpy != EGL_NO_DISPLAY)
-    {
-        eglTerminate(*eglDpy);
-        logUtils::errors::assertEGLError("eglTerminate");
-    }
-}
-
-EGLBoolean platform_specific_EGLdisplay(EGLDisplay * eglDpy, EGLint * numConfigs, EGLConfig * eglCfg, EGLint * major, EGLint  * minor)
-{
-    //this display initializatoin is done to look for available displays when
-    //deploying to machines with unknown HW configs
-    static const int MAX_DEVICES = 32;
-    EGLDeviceEXT eglDevs[MAX_DEVICES];
-    EGLint numDevices;
-
-    printf("Detecting platform specific devices... ");
-
-    PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT = (PFNEGLQUERYDEVICESEXTPROC) eglGetProcAddress("eglQueryDevicesEXT");
-
-    eglQueryDevicesEXT(MAX_DEVICES, eglDevs, &numDevices);
-
-    printf("Detected %d devices\n", numDevices);
-
-    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = (PFNEGLGETPLATFORMDISPLAYEXTPROC) eglGetProcAddress("eglGetPlatformDisplayEXT");
-
-    // 1. Initialize EGL && Select an appropriate configuration
-    EGLBoolean found = EGL_FALSE;
-    for( EGLint i = 0; (EGL_FALSE == found) && (i < numDevices); ++i ){
-        (*eglDpy) = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT, eglDevs[i], 0);
-        found =  eglInitialize(eglDpy, major, minor); 
-        printf("device %i - initialize result %d\n", i, found ? 1 : 0);
-    }
-
-    return found;	
-}
-
-void print_EGL_info(EGLint major, EGLint  minor)
-{
-    std::cout << "Generate EGL context with version " << major << "." << minor << std::endl;
-    std::cout << glGetString( GL_VERSION ) << std::endl;
-    std::cout << glGetString( GL_VENDOR ) << std::endl;
-    std::cout << glGetString( GL_RENDERER ) << std::endl;
-    std::cout << glGetString( GL_SHADING_LANGUAGE_VERSION ) << std::endl << std::endl;
-}
-
-void run_EGL()
-{
-    EGLDisplay eglDpy;
-    EGLSurface surface;
-	EGLint numConfigs;
-    EGLConfig eglCfg;
-    EGLContext eglCtx;
-    EGLint major, minor;  
-    try {
-        printf("Initializing EGL display and EGL configuration... \n");  
-        // 1. Initialize EGL & 2. Select an appropriate configuration
-        if (platform_specific_EGLdisplay(&eglDpy, &numConfigs, &eglCfg, &major, &minor) != EGL_TRUE)
-        {
-            eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-            logUtils::errors::assertEGLError("eglGetDisplay");
-            eglInitialize(eglDpy, &major, &minor);
-            logUtils::errors::assertEGLError("eglInitialize");
-            printf("Done with EGL_DEFAULT_DISPLAY\n\n");
-        }
-        else
-        {
-            printf("Done with PLATFORM SPECIFIC DISPLAY\n\n");
-        }
-
-        eglChooseConfig(eglDpy, config_Attrib, &eglCfg, 1, &numConfigs);
-        logUtils::errors::assertEGLError("eglChooseConfig");
-
-        // 3. Bind the API
-        eglBindAPI(EGL_OPENGL_API);
-        logUtils::errors::assertEGLError("eglBindAPI");
-
-        // 3. Create a context and make it current
-        eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, context_attrib);
-        logUtils::errors::assertEGLError("eglCreateContext");
-        /* create an EGL pbuffer surface */
-        // surface = eglCreatePbufferSurface(eglDpy, eglCfg, surface_attrib);
-        // logUtils::errors::assertEGLError("eglCreatePbufferSurface");
-        eglMakeCurrent(eglDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, eglCtx);
-        logUtils::errors::assertEGLError("eglMakeCurrent");
-    } catch(const std::exception& e) {
-        printf("ERROR %s\n\n TERMINATE\n", e.what());
-        terminate(&eglDpy, &eglCtx);
-    }
-    
-    print_EGL_info(major, minor);
-
-    // from now on use your OpenGL 
-    printf("Creating Render class...\n");  
-    Render * render = new Render();
-    printf("Done.\nStarting loop...");  
-
-    int i = 0;
-    while(i<10) {
-        render->display();
-        i++;
-    }
-
-    terminate(&eglDpy, &eglCtx);
-}
 
 int main(int argc, char *argv[])
 {
-    run_EGL();
-    return 1;
+//     App *app = &s_app;
+//     GError *error = NULL;
+//     GstBus *bus;
+//     GstCaps *caps;
+//     GstVideoInfo info;
+
+
+//     gst_init (&argc, &argv);
+
+
+//     GST_DEBUG_CATEGORY_INIT (appsrc_pipeline_debug, "appsrc-pipeline", 0,
+//       "appsrc pipeline example");
+
+//   /* create a mainloop to get messages and to handle the idle handler that will
+// * feed data to appsrc. */
+//   app->loop = g_main_loop_new (NULL, TRUE);
+//   app->timer = g_timer_new();
+
+//   // Option 1: Display on screen via xvimagesink
+//   app->pipeline = gst_parse_launch("appsrc name=mysource ! video/x-raw-rgb,width=640,height=480 ! ffmpegcolorspace ! videoscale method=1 ! xvimagesink", NULL);
+
+//   // Option 2: Encode using Theora and stream through UDP
+//   // NOTE: first launch receiver by executing:
+//   //       gst-launch udpsrc port=5000 ! theoradec ! ffmpegcolorspace ! xvimagesink
+//   //app->pipeline = gst_parse_launch("appsrc name=mysource ! videorate ! ffmpegcolorspace ! videoscale method=1 ! video/x-raw-yuv,width=640,height=480,framerate=\(fraction\)15/1 ! theoraenc bitrate=700 ! udpsink host=127.0.0.1 port=5000", NULL);
+
+//   g_assert (app->pipeline);
+
+//   bus = gst_pipeline_get_bus (GST_PIPELINE (app->pipeline));
+//   g_assert(bus);
+
+//   /* add watch for messages */
+//   gst_bus_add_watch (bus, (GstBusFunc) bus_message, app);
+
+//   /* get the appsrc */
+//     app->appsrc = gst_bin_get_by_name (GST_BIN(app->pipeline), "mysource");
+//     g_assert(app->appsrc);
+//     g_assert(GST_IS_APP_SRC(app->appsrc));
+//     g_signal_connect (app->appsrc, "need-data", G_CALLBACK (start_feed), app);
+//     g_signal_connect (app->appsrc, "enough-data", G_CALLBACK (stop_feed), app);
+
+//   /* set the caps on the source */
+//   gst_video_info_set_format(&info, GST_VIDEO_FORMAT_RGBA, 1920, 1080);
+//   caps = gst_video_info_to_caps(&info);
+//   gst_app_src_set_caps(GST_APP_SRC(app->appsrc), caps);
+
+
+//   /* go to playing and wait in a mainloop. */
+//   gst_element_set_state (app->pipeline, GST_STATE_PLAYING);
+
+//   /* this mainloop is stopped when we receive an error or EOS */
+//   g_main_loop_run (app->loop);
+
+//   GST_DEBUG ("stopping");
+
+//   gst_element_set_state (app->pipeline, GST_STATE_NULL);
+
+//   gst_object_unref (bus);
+//   g_main_loop_unref (app->loop);
+
+
+    return 0;
 }

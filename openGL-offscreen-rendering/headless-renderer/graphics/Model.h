@@ -1,11 +1,10 @@
 #ifndef _MODEL_H_
 #define _MODEL_H_
 
-#include "LogUtils.h"
 #include "Mesh.h"
 #include "ShaderProgram.h"
-#include "constants/Enums.h"
-#include "constants/Structs.h"
+#include "../constants/Enums.h"
+#include "../constants/Structs.h"
 
 class Model {
     Mesh * _mesh;

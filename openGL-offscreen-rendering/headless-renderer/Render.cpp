@@ -1,10 +1,7 @@
 #include "Render.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
+#include "extern/stb_image_write.h"
 
 void Render::printFrame() {
     static int i=0;
@@ -19,7 +16,7 @@ void Render::printFrame() {
                 pixels.begin() + 4 * width * (line+1),
                 pixels.begin() + 4 * width * (height-line-1));
     }
-    logUtils::errors::assertOpenGLError("glReadPixels");
+    gl::log::errors::assertOpenGLError("glReadPixels");
     printf("Done.\nPrinting frame %d...", i);
     
     std::ostringstream img_name;
@@ -41,9 +38,9 @@ void Render::initBuffers() {
     glGenRenderbuffers(1, &color);
     glBindRenderbuffer(GL_RENDERBUFFER, color);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, width, height);
-    logUtils::errors::assertOpenGLError("glRenderbufferStorage");
+    gl::log::errors::assertOpenGLError("glRenderbufferStorage");
     glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color);
-    logUtils::errors::assertOpenGLError("glFramebufferRenderbuffer");
+    gl::log::errors::assertOpenGLError("glFramebufferRenderbuffer");
 //3. Generate depth render buffer with 32 bit component to handle alpha as well
     glGenRenderbuffers(1, &depth);
     glBindRenderbuffer(GL_RENDERBUFFER, depth);
@@ -86,19 +83,14 @@ void Render::init() {
     // as well as the unpacking of texture patterns (see glTexImage2D and glTexSubImage2D). 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    logUtils::printStats();
-    logUtils::errors::checkFramebufferStatus();
+    gl::log::printStats();
+    gl::log::errors::checkFramebufferStatus();
 }
 
 void Render::display() {
 
-	//Passo al Vertex Shader il puntatore alla matrice Projection, che sar� associata alla variabile Uniform mat4 Projection
-	//all'interno del Vertex shader. Uso l'identificatio MatProj
-	Projection = glm::perspective(glm::radians((float)fov), (float)(width) / float(height), zNear, zFar);
-	//Costruisco la matrice di Vista che applicata ai vertici in coordinate mondo WCS
-	//li trasforma nel sistema di riferimento della camera VCS.
-	// usage: lookAt(eye,at,up);
-	View = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	Projection = camera->getProjectionMatrix(width, height);
+	View = camera->getViewMatrix();
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -112,7 +104,7 @@ void Render::display() {
     currentShader->disable();
 
     glFinish();
-    logUtils::errors::assertOpenGLError("glFinish");
+    gl::log::errors::assertOpenGLError("glFinish");
 
 
     printFrame();

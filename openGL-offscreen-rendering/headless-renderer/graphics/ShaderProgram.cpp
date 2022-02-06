@@ -42,7 +42,7 @@ bool ShaderProgram::load(const std::string& vertFileName, const std::string& fra
         printf("%s\n", infoLog);
     }
 
-    logUtils::errors::assertOpenGLError("glGetShaderiv");
+    gl::log::errors::assertOpenGLError("glGetShaderiv");
     //Creiamo un identificativo di un eseguibile e gli colleghiamo i due shader compilati
     _shaderProgram = glCreateProgram();
 

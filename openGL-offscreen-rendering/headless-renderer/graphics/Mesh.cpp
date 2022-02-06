@@ -14,7 +14,7 @@ void Mesh::draw() {
     //draws only the trinagle's lines
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawArrays(GL_TRIANGLES, 0, _vertices.size());
-    logUtils::errors::assertOpenGLError("glDrawArrays");
+    gl::log::errors::assertOpenGLError("glDrawArrays");
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
