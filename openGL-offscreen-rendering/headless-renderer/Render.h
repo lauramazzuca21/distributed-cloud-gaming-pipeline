@@ -8,11 +8,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.inl>
 
-#include "graphics/glLogUtils.h"
+#include "utils/glLogUtils.h"
+
 #include "graphics/ContextEGL.h"
 #include "graphics/ShaderProgram.h"
 #include "graphics/Light.h"
 #include "graphics/Camera.h"
+
 #include "Dragon.h"
 
 
@@ -22,9 +24,7 @@ class Render
 
     GLuint fb, color, depth;
 
-    static const int	width = 1920;
-    static const int	height = 1200;
-    float aspect = width/height*1.0f;
+    std::vector<uint8_t> pixels;
 
     ContextEGL* ctxt = new ContextEGL();
 
@@ -34,8 +34,17 @@ class Render
     std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
 
     glm::mat4 Projection, View;
-
+private:
+    const std::vector<uint8_t>& getPixels();
+    void init();
+    void initBuffers();
+    
 public:
+    static const int	width = 1920;
+    static const int	height = 1200;
+    float aspect = width/height*1.0f;
+
+
     Render() { 
         ctxt->init();
         init(); 
@@ -47,11 +56,7 @@ public:
 
         ctxt->terminate();
     }
-    void display();
-private:
-    void printFrame();
-    void init();
-    void initBuffers();
+    const std::vector<uint8_t>& nextFramePixels();
 };
 
 #endif

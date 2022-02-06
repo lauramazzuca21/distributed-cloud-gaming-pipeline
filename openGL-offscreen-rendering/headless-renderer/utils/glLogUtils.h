@@ -1,5 +1,5 @@
-#ifndef _LOG_UTILS_H_
-#define _LOG_UTILS_H_
+#ifndef _GL_LOG_UTILS_H_
+#define _GL_LOG_UTILS_H_
 
 #include <sstream>
 #include <stdexcept>

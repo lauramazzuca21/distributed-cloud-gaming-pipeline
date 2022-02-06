@@ -3,9 +3,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "extern/stb_image_write.h"
 
-void Render::printFrame() {
-    static int i=0;
-    std::vector<uint8_t> pixels(width * height * 4);
+const std::vector<uint8_t>& Render::getPixels() {
+    // static int i=0;
 
     printf("Reading pixels...");
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
@@ -17,16 +16,8 @@ void Render::printFrame() {
                 pixels.begin() + 4 * width * (height-line-1));
     }
     gl::log::errors::assertOpenGLError("glReadPixels");
-    printf("Done.\nPrinting frame %d...", i);
-    
-    std::ostringstream img_name;
-    img_name << "./frames/frame" << i << ".png";
-    // stbi_write_jpg(img_name.str().c_str(), width, height, 4, buffer, 300);
-    stbi_write_png(img_name.str().c_str(), width, height, 4, pixels.data(), 0);
-    printf("Done.\n");
 
-    i++;
-    pixels.clear();
+    return pixels;
 }
 
 void Render::initBuffers() {
@@ -52,6 +43,8 @@ void Render::initBuffers() {
 
 void Render::init() {
     glewInit();
+
+    pixels.reserve(width * height * 4);
 
     initBuffers();
 
@@ -87,7 +80,7 @@ void Render::init() {
     gl::log::errors::checkFramebufferStatus();
 }
 
-void Render::display() {
+const std::vector<uint8_t>& Render::nextFramePixels() {
 
 	Projection = camera->getProjectionMatrix(width, height);
 	View = camera->getViewMatrix();
@@ -107,5 +100,5 @@ void Render::display() {
     gl::log::errors::assertOpenGLError("glFinish");
 
 
-    printFrame();
+    return getPixels();
 }
