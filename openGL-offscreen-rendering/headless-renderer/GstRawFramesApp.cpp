@@ -56,7 +56,7 @@ gboolean GstRawFramesApp::pushData(gpointer data) {
         return Gst::FLOW_CUSTOM_ERROR;
     }
 
-    static Gst::ClockTime time;
+    static Gst::ClockTime time = _clock->get_time() - _baseTime;
 
     const std::vector<uint8_t>& frame = _render->nextFramePixels();
 
@@ -81,6 +81,9 @@ void GstRawFramesApp::run(int argc, char *argv[]) {
 
     std::cout << "Setting to PLAYING." << std::endl;
     _streamApp->pipe->set_state(Gst::STATE_PLAYING);
+    _clock = Gst::SystemClock::obtain();
+    _baseTime = _clock->get_time();
+
     std::cout << "Running." << std::endl;
     _mainloopptr->run();
 

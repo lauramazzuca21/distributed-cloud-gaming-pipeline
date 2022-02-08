@@ -20,7 +20,9 @@ typedef std::shared_ptr<RawFramesPipeline> RawFramesAppPtr;
 private:
     Render* _render = new Render();
     RawFramesAppPtr _streamApp;
-
+    Glib::RefPtr<Gst::Clock> _clock;
+    Gst::ClockTime _baseTime;
+    
     Glib::RefPtr<Gst::Buffer> _bufferptr;
     Glib::RefPtr<Glib::MainLoop> _mainloopptr;
 
