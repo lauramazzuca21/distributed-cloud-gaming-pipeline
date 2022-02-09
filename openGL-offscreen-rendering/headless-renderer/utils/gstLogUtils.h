@@ -23,7 +23,7 @@ namespace gst {
 
         std::cout << "This program is linked against GStreamer "
             << major << "." << minor << "." << micro << "."
-            << nano << " " << nano_str << std::endl;
+            << nano << " " << nano_str << std::endl << std::endl;
         }
     }
 }

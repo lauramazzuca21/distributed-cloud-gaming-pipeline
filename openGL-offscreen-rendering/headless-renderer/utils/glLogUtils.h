@@ -32,7 +32,7 @@ namespace gl {
             glGetIntegerv (GL_IMPLEMENTATION_COLOR_READ_FORMAT, &imp_fmt);
             glGetIntegerv (GL_IMPLEMENTATION_COLOR_READ_TYPE,   &imp_type);
 
-            printf ("Supported Color Format/Type: %x/%x\n", imp_fmt, imp_type);
+            printf ("Supported Color Format/Type: %x/%x\n\n", imp_fmt, imp_type);
         }
 
         static void print_EGL_info(EGLint major, EGLint  minor)

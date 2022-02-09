@@ -8,30 +8,37 @@
 
 class GstRawFramesApp {
 
-struct RawFramesPipeline {
+struct _RawFramesApp {
     Glib::RefPtr<Gst::AppSrc>   appsrc;
-    Glib::RefPtr<Gst::Element>  udpsink;
     Glib::RefPtr<Gst::Pipeline> pipe;
     guint sourceid = 0; 
 };
 
-typedef std::shared_ptr<RawFramesPipeline> RawFramesAppPtr;
+typedef std::shared_ptr<_RawFramesApp> RawFramesAppPtr;
 
 private:
     Render* _render = new Render();
-    RawFramesAppPtr _streamApp;
-    Glib::RefPtr<Gst::Clock> _clock;
-    Gst::ClockTime _baseTime;
-    
-    Glib::RefPtr<Gst::Buffer> _bufferptr;
+    RawFramesAppPtr _streamApp;    
     Glib::RefPtr<Glib::MainLoop> _mainloopptr;
 
-    void createPipeline(int width, int height);
+    gboolean createPipeline(int width, int height);
     void enableStream(guint, RawFramesAppPtr app);
     void disableStream(RawFramesAppPtr app);
-    gboolean pushData(gpointer data);
+    gboolean busCallback(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
+    static gboolean pushData(GstRawFramesApp * app);
+
 public:
     void run(int argc, char *argv[]);
+    RawFramesAppPtr getStreamApp() { return _streamApp; }
+    Glib::RefPtr<Gst::Buffer> nextFrameBuffer();
+
+    // GstRawFramesApp();
+    ~GstRawFramesApp() {
+        // _mainloopptr->unreference();
+        // _streamApp->appsrc->unreference();
+        // _streamApp->pipe->unreference();
+    }
+
 };
 
 #endif

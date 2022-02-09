@@ -21,25 +21,7 @@
 
 class Render
 {
-
-    GLuint fb, color, depth;
-
-    std::vector<uint8_t> pixels;
-
-    ContextEGL* ctxt = new ContextEGL();
-
-    Light * light = new Light();
-    Camera * camera = new Camera();
-    Dragon * model;
-    std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
-
-    glm::mat4 Projection, View;
-private:
-    const std::vector<uint8_t>& getPixels();
-    void init();
-    void initBuffers();
-    
-public:
+    public:
     static const int	width = 1920;
     static const int	height = 1200;
     float aspect = width/height*1.0f;
@@ -57,6 +39,28 @@ public:
         ctxt->terminate();
     }
     const std::vector<uint8_t>& nextFramePixels();
+
+private:
+
+    GLuint fb, color, depth;
+
+    std::vector<uint8_t> pixels = std::vector<uint8_t>(width * height * 4);
+
+    ContextEGL* ctxt = new ContextEGL();
+
+    Light * light = new Light();
+    Camera * camera = new Camera();
+    Dragon * model;
+    std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
+
+    glm::mat4 Projection, View;
+
+
+    const std::vector<uint8_t>& getPixels();
+    void init();
+    void initBuffers();
+    
+
 };
 
 #endif
