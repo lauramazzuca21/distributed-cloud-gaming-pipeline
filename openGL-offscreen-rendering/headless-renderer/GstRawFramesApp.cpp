@@ -1,8 +1,11 @@
 #include "GstRawFramesApp.h"
 #include <sstream>
+#ifdef G_OS_UNIX
+#include <glib-unix.h>
+#endif
 /*
     stream with
-    gst-launch-1.0 udpsrc port=5000 caps="application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)1920, height=(string)1080, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904" ! rtpvrawdepay ! rawvideoparse width=1920 height=1080 format=11 ! ximagesink
+gst-launch-1.0 udpsrc port=5000 caps="application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)1920, height=(string)1080, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904" ! rtpvrawdepay ! rawvideoparse width=1920 height=1080 format=11 ! videoconvert ! queue !  ximagesink 
 */
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer() { 
@@ -18,15 +21,11 @@ Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer() {
 
 gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 
-    gboolean result = true;
+    gboolean result = false;
 
     if (!app->getStreamApp()->sourceid) {
-        return Gst::FLOW_CUSTOM_ERROR;
+        return false;
     }
-
-    // static Gst::ClockTime time = _clock->get_time() - _baseTime;
-
-    // _bufferptr->set_pts(time);
 
     Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(app->nextFrameBuffer());
 
@@ -35,6 +34,7 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
         g_print("Error %d\n", (int) ret);
         result = false;
     }
+    else {result = true; }
 
     return result;
 }
@@ -42,7 +42,7 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     std::stringstream str;
-    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << " ! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA ! rtpvrawpay ! udpsink name=sink host=127.0.0.1 port=5000";
+    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=30/1 ! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA ! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
 
     _streamApp = std::make_shared<_RawFramesApp>();
     Glib::RefPtr<Gst::Element> pipeline;
@@ -80,6 +80,7 @@ void GstRawFramesApp::enableStream(guint, RawFramesAppPtr app) {
 
 void GstRawFramesApp::disableStream(RawFramesAppPtr app) {
     if (app->sourceid != 0) {
+        g_idle_remove_by_data(this);
         app->sourceid = 0;
     }
 }
@@ -108,6 +109,17 @@ gboolean GstRawFramesApp::busCallback(const Glib::RefPtr<Gst::Bus>& bus, const G
     return TRUE;
 }
 
+#ifdef G_OS_UNIX
+gboolean
+GstRawFramesApp::exit_sighandler (gpointer user_data)
+{
+  gst_print ("Caught signal, stopping mainloop\n");
+  GMainLoop *mainloop = (GMainLoop *) user_data;
+  g_main_loop_quit (mainloop);
+  return TRUE;
+}
+#endif
+
 void GstRawFramesApp::run(int argc, char *argv[]) {
     Gst::init(argc, argv);
     gst::log::printGstreamerVersion();
@@ -116,6 +128,10 @@ void GstRawFramesApp::run(int argc, char *argv[]) {
 
     if(createPipeline(_render->width, _render->height)) {
 
+        #ifdef G_OS_UNIX
+        g_unix_signal_add (SIGINT, GstRawFramesApp::exit_sighandler, _mainloopptr->gobj());
+        g_unix_signal_add (SIGTERM, GstRawFramesApp::exit_sighandler, _mainloopptr->gobj());
+        #endif
         std::cout << "Setting to PLAYING." << std::endl;
         _streamApp->pipe->set_state(Gst::STATE_PLAYING);
 
