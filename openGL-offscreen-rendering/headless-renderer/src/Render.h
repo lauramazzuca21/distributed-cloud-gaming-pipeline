@@ -8,12 +8,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.inl>
 
-#include "utils/glLogUtils.h"
+#include "../utils/glLogUtils.h"
 
-#include "graphics/ContextEGL.h"
-#include "graphics/ShaderProgram.h"
-#include "graphics/Light.h"
-#include "graphics/Camera.h"
+#include "../graphics/ContextEGL.h"
+#include "../graphics/ShaderProgram.h"
+#include "../graphics/Light.h"
+#include "../graphics/Camera.h"
 
 #include "Dragon.h"
 

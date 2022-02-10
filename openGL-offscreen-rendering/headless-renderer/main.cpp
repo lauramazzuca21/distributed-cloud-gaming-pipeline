@@ -1,4 +1,4 @@
-#include "GstRawFramesApp.h"
+#include "src/GstRawFramesApp.h"
 
 int main(int argc, char *argv[])
 {

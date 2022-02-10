@@ -1,7 +1,7 @@
 #include "Render.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "extern/stb_image_write.h"
+#include "../extern/stb_image_write.h"
 
 const std::vector<uint8_t>& Render::getPixels() {
     printf("Reading pixels...");

@@ -3,7 +3,7 @@
 
 #include <glibmm/main.h>
 
-#include "utils/gstLogUtils.h"
+#include "../utils/gstLogUtils.h"
 #include "Render.h"
 
 class GstRawFramesApp {

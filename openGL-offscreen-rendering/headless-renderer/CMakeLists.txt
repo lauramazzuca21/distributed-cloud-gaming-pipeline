@@ -10,12 +10,13 @@ file(GLOB SRCs
 
 add_executable(main ${SRCs}) 
 add_subdirectory(graphics)
+add_subdirectory(src)
 
 
 find_package(PkgConfig) 
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL GLX)
 find_package(GLEW REQUIRED)
-include(FindGstreamermm.cmake)
+include(cmake-modules/FindGstreamermm.cmake)
 
 include_directories(
     ${OPENGL_INCLUDE_DIRS}  
