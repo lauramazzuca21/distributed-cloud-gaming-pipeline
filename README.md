@@ -21,7 +21,7 @@
 
 # Installing the Media Live Streamer
 ## Dependencies
-> These dependencies have been listed here since the environment used for Docker is GStreamer ready. For other dependencies plese see the [Dockerfile]()
+> These dependencies have been listed here since the environment used for Docker is GStreamer ready. For other dependencies plese see the [Dockerfile](https://github.com/lauramazzuca21/distributed-cloud-gaming-pipeline/blob/master/gstreamer-live-streaming/Dockerfile)
 The OS used to develop the application is Ubuntu 20.04, for which the default GStreamer library downloaded by apt is the 1.16. For better support with OpenGL, the latest stable version was installed, **1.18**. [To upgrade the repositories](https://askubuntu.com/questions/1377561/is-it-possible-to-upgrade-gstreamer-and-libx264-on-ubuntu-18-04) needed to install gstreamer-1.18 run:
 ```bash
 sudo add-apt-repository ppa:savoury1/ffmpeg4
@@ -76,7 +76,7 @@ sudo docker run --rm --network host -dit webrtc-streamer:1
 
 # Installing the Headless Renderer
 ## Dependencies
->For the libraries needed to run locally this application see the [Dockerfile]().
+>For the libraries needed to run locally this application see the [Dockerfile](https://github.com/lauramazzuca21/distributed-cloud-gaming-pipeline/blob/master/headless-renderer/Dockerfile).
 
 The host to run the Docker container onto needs to have a NVIDIA GPU and install the NVIDIA Docker toolkit with the following commands:
 ```bash
