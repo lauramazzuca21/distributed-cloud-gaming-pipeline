@@ -4,7 +4,7 @@
 #include "../extern/stb_image_write.h"
 
 const std::vector<uint8_t>& Render::getPixels() {
-    printf("Reading pixels...");
+    gl::log::debug::print("Reading pixels...");
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
     for(int line = 0; line != height/2; ++line) {
@@ -14,7 +14,7 @@ const std::vector<uint8_t>& Render::getPixels() {
                 pixels.begin() + 4 * width * (height-line-1));
     }
     gl::log::errors::assertOpenGLError("glReadPixels");
-    printf("Read %lu pixels.\n", pixels.size());
+    gl::log::debug::print("Read %lu pixels.\n", pixels.size());
 
     return pixels;
 }

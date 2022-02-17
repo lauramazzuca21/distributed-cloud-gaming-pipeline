@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
+#include <stdarg.h>
 
 #include <EGL/egl.h>
 #include <GL/glew.h>
@@ -131,6 +132,21 @@ namespace gl {
                     throw std::runtime_error("Framebuffer Error");
                 }
             }
+
+        }
+        namespace debug {
+            static int print(const char * format, ...) {
+                #ifdef DEBUG
+                    va_list vl;
+                    va_start(vl, format);
+                    auto ret = vprintf(format, vl);
+                    va_end(vl);
+                    return ret;
+                #else
+                    return 0;
+                #endif
+            }
+
 
         }
     }
