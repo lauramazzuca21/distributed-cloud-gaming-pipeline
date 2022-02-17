@@ -21,6 +21,7 @@
 
 # Installing the Media Live Streamer
 ## Dependencies
+> These dependencies have been listed here since the environment used for Docker is GStreamer ready. For other dependencies plese see the [Dockerfile]()
 The OS used to develop the application is Ubuntu 20.04, for which the default GStreamer library downloaded by apt is the 1.16. For better support with OpenGL, the latest stable version was installed, **1.18**. [To upgrade the repositories](https://askubuntu.com/questions/1377561/is-it-possible-to-upgrade-gstreamer-and-libx264-on-ubuntu-18-04) needed to install gstreamer-1.18 run:
 ```bash
 sudo add-apt-repository ppa:savoury1/ffmpeg4
@@ -28,9 +29,9 @@ sudo add-apt-repository ppa:savoury1/multimedia
 sudo apt update
 sudo apt dist-upgrade
 ```
-Then, to install the libraries needed to build and run the application:
+Then, to install the libraries needed to build and run the application locally:
 ```bash
-sudo apt install gstreamer1.0-tools gstreamer1.0-nice gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-plugins-good libgstreamer1.0-dev libglib2.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-gl libsoup2.4-dev libjson-glib-dev
+sudo apt install gstreamer1.0-tools gstreamer1.0-nice gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-plugins-good libgstreamer1.0-dev libglib2.0-dev libgstreamer-plugins-bad1.0-dev libsoup2.4-dev libjson-glib-dev
 ```
 ### NB
 If you already have **anaconda** installed, you already have GStreamer installed. To check run:
@@ -44,32 +45,85 @@ conda deactivate
 if the terminal has conda environment active.
 
 ## Application
+### Local setup
 To install the application simply run (from the current folder):
 ```bash
 cd gstreamer-live-streaming
-./install.sh
+cmake .
+make
 ```
 which will place the executable file in the folder gstreamer-live-streaming/bin.
 
 To run the application run:
 ```bash
-cd bin
-./mls
+./main
 ```
+
+### Docker container setup
+To install from a clone of this repository
+```bash
+sudo docker build . -t webrtc-streamer:1
+```
+To download from [docker hub](https://hub.docker.com/repository/docker/lauramazzuca/webrtc-streamer)
+```bash
+docker push lauramazzuca/webrtc-streamer:<tagname>
+```
+
+Then run it with host network configuration with
+```bash
+sudo docker run --rm --network host -dit webrtc-streamer:1
+```
+
 # Installing the Headless Renderer
 ## Dependencies
-The libraries used in this application can be installed running the following cmd:
+>For the libraries needed to run locally this application see the [Dockerfile]().
+
+The host to run the Docker container onto needs to have a NVIDIA GPU and install the NVIDIA Docker toolkit with the following commands:
 ```bash
-sudo apt install mesa-utils mesa-common-dev libglapi-mesa libegl1-mesa-dev libegl-dev libjpeg-turbo8-dev libpng-dev
+$ distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+   
+$ sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+
+$ sudo service docker stop
+$ sudo tee /etc/docker/daemon.json <<EOF
+{
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    },
+		"default-runtime": "nvidia"
+}
+EOF
+$ sudo service docker start
 ```
 ## Application
-To install the application run:
+### Local setup
+To install the application locally run:
 ```bash
-cd openGL-offscreen-rendering/headless-renderer
+cd headless-renderer
 cmake .
-make all
+make
 ```
 then, to run it:
 ```bash
 ./main
+```
+
+### Docker container setup
+To install from a clone of this repository
+```bash
+sudo docker build . -t headless-renderer:1
+```
+To download from [docker hub](https://hub.docker.com/repository/docker/lauramazzuca/headless-renderer)
+```bash
+docker push lauramazzuca/headless-renderer:<tagname>
+```
+
+Then run it with host network configuration with
+```bash
+sudo docker run --rm --network host -dit headless-renderer:1
 ```

@@ -3,10 +3,6 @@
 #ifdef G_OS_UNIX
 #include <glib-unix.h>
 #endif
-/*
-    stream with
-gst-launch-1.0 udpsrc port=5000 caps="application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)1920, height=(string)1080, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904" ! rtpvrawdepay ! rawvideoparse width=1920 height=1080 format=11 ! videoconvert ! queue !  ximagesink 
-*/
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer() { 
     

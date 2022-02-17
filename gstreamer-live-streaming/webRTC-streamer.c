@@ -178,7 +178,8 @@ create_receiver_entry (SoupWebsocketConnection * connection)
   receiver_entry->pipeline =
       gst_parse_launch ("webrtcbin name=webrtcbin stun-server=stun://"
       STUN_SERVER " "
-      "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)1920, height=(string)1080, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" ! rtpvrawdepay ! rawvideoparse width=1920 height=1080 format=11 !"
+      "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)1920, height=(string)1080, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
+      "! rtpvrawdepay ! rawvideoparse width=1920 height=1080 format=11 !" //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
       " videoconvert ! video/x-raw, format=YV12 ! x264enc bitrate=2048 speed-preset=medium tune=zerolatency key-int-max=15 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
       "rtph264pay config-interval=-1 name=payloader aggregate-mode=zero-latency ! "
       "application/x-rtp,media=video,encoding-name=H264,payload="

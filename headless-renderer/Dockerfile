@@ -39,6 +39,9 @@ RUN apt-get install -y software-properties-common \
 
 
 RUN ls -la /dev | grep nvidia  
+
+EXPOSE 5000/udp
+
 # This command compiles your app using GCC, adjust for your source code
 RUN cmake . && make
 
