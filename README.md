@@ -66,7 +66,7 @@ sudo docker build . -t webrtc-streamer:1
 ```
 To download from [docker hub](https://hub.docker.com/repository/docker/lauramazzuca/webrtc-streamer)
 ```bash
-docker push lauramazzuca/webrtc-streamer:<tagname>
+docker pull lauramazzuca/webrtc-streamer:latest
 ```
 
 Then run it with host network configuration with
@@ -120,7 +120,7 @@ sudo docker build . -t headless-renderer:1
 ```
 To download from [docker hub](https://hub.docker.com/repository/docker/lauramazzuca/headless-renderer)
 ```bash
-docker push lauramazzuca/headless-renderer:<tagname>
+docker pull lauramazzuca/headless-renderer:latest
 ```
 
 Then run it with host network configuration with
