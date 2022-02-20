@@ -61,10 +61,21 @@ void Render::init() {
         gl::log::debug::print("Done.\n");
     }
 
-    model = new Dragon("xyzrgb_dragon", Constants::ShadingType::PHONG);
+    dragon = new Dragon("xyzrgb_dragon");
 
-    if (loadedShaders.find(model->getShaderType()) == loadedShaders.end()) {
-        ShaderProgram * current = new ShaderProgram(model->getShaderType());
+    if (loadedShaders.find(dragon->getShaderType()) == loadedShaders.end()) {
+        ShaderProgram * current = new ShaderProgram(dragon->getShaderType());
+        current->enable();
+        current->setUniformVector3("light_color_pointer", light->getColor());
+        current->setUniformFloat("light_power_pointer", light->getPower());
+        current->disable();
+        loadedShaders.emplace(current->getType(), current);
+    }
+
+    buddha = new Buddha("buddha");
+
+    if (loadedShaders.find(buddha->getShaderType()) == loadedShaders.end()) {
+        ShaderProgram * current = new ShaderProgram(buddha->getShaderType());
         current->enable();
         current->setUniformVector3("light_color_pointer", light->getColor());
         current->setUniformFloat("light_power_pointer", light->getPower());
@@ -104,12 +115,21 @@ void Render::nextFrame() {
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    ShaderProgram * currentShader = loadedShaders[model->getShaderType()];
+    ShaderProgram * currentShader = loadedShaders[dragon->getShaderType()];
     
     currentShader->enable();
     currentShader->setUniformVector3("light_position_pointer", light->getPosition());
 
-    model->draw(currentShader, View, Projection);
+    dragon->draw(currentShader, View, Projection);
+
+    currentShader->disable();
+
+    currentShader = loadedShaders[buddha->getShaderType()];
+    
+    currentShader->enable();
+    currentShader->setUniformVector3("light_position_pointer", light->getPosition());
+
+    buddha->draw(currentShader, View, Projection);
 
     currentShader->disable();
 

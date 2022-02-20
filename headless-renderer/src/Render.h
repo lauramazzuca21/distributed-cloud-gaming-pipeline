@@ -16,8 +16,7 @@
 #include "../graphics/Camera.h"
 
 #include "Dragon.h"
-
-
+#include "Buddha.h"
 
 class Render
 {
@@ -55,7 +54,8 @@ private:
     bool _useEGL = false;
     Light * light = new Light();
     Camera * camera = new Camera();
-    Dragon * model;
+    Dragon * dragon;
+    Buddha * buddha;
     std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
 
     glm::mat4 Projection, View;

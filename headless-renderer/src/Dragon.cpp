@@ -7,7 +7,7 @@ Dragon::Dragon(std::string name, Constants::ShadingType shader,
 
 void Dragon::draw(ShaderProgram * shaderProgram, glm::mat4 view, glm::mat4 projection) {
     
-    rotateOCS(Constants::VectorType::Y, 0.1f);
+    rotateWCS(Constants::VectorType::Y, 0.1f);
 
     Model::draw(shaderProgram, view, projection);
     
