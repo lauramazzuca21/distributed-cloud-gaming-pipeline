@@ -17,7 +17,11 @@
 #define RTP_PAYLOAD_TYPE "96"
 #define SOUP_HTTP_PORT 57778
 #define STUN_SERVER "stun.l.google.com:19302"
+#define TURN_SERVER_TCP "turn.anyfirewall.com:443?transport=tcp"
+#define TURN_SERVER_UDP "turn01.hubl.in?transport=udp"
 
+#define WIDTH "1280"
+#define HEIGHT "720"
 typedef struct _ReceiverEntry ReceiverEntry;
 
 ReceiverEntry *create_receiver_entry (SoupWebsocketConnection * connection);
@@ -59,6 +63,7 @@ const gchar *html_source = " \n \
     <script type=\"text/javascript\" src=\"https://webrtc.github.io/adapter/adapter-latest.js\"></script> \n \
     <script type=\"text/javascript\"> \n \
       var html5VideoElement; \n \
+      var textbx; \n \
       var websocketConnection; \n \
       var webrtcPeerConnection; \n \
       var webrtcConfiguration; \n \
@@ -88,7 +93,10 @@ const gchar *html_source = " \n \
  \n \
  \n \
       function onAddRemoteStream(event) { \n \
+        console.log(\"Received stream \" +  event.streams[0]); \n \
         html5VideoElement.srcObject = event.streams[0]; \n \
+        if(!html5VideoElement.srcObject.active) \n \
+            console.log(\"stream is not active! \"); \n \
       } \n \
  \n \
  \n \
@@ -124,7 +132,7 @@ const gchar *html_source = " \n \
       } \n \
  \n \
  \n \
-      function playStream(videoElement, hostname, port, path, configuration, reportErrorCB) { \n \
+      function playStream( hostname, port, path, configuration, reportErrorCB) { \n \
         var l = window.location;\n \
         var wsHost = (hostname != undefined) ? hostname : l.hostname; \n \
         var wsPort = (port != undefined) ? port : l.port; \n \
@@ -133,18 +141,31 @@ const gchar *html_source = " \n \
           wsPort = \":\" + wsPort; \n\
         var wsUrl = \"ws://\" + wsHost + wsPort + \"/\" + wsPath; \n \
  \n \
-        html5VideoElement = videoElement; \n \
+        html5VideoElement = document.getElementById(\"stream\"); \n \
+        textbx = document.getElementById(\"textbox\"); \n \
+        html5VideoElement.onloadeddata = (event) => { \n \
+        console.log('Yay! The readyState just increased to  ' + \n \
+            'HAVE_CURRENT_DATA or greater for the first time.'); \n \
+        }; \n \
+        html5VideoElement.onsuspend = (event) => {\n \
+        console.log('Data loading has been suspended.');\n \
+        };\n \
+        html5VideoElement.onstalled = (event) => {\n \
+        console.log('Failed to fetch data, but trying.');\n \
+        };\n \
+        html5VideoElement.onerror = function() {\n \
+        console.log(\"Error \" + html5VideoElement.error.code + \"; details: \" + html5VideoElement.error.message);\n \
+        }\n \
         webrtcConfiguration = configuration; \n \
         reportError = (reportErrorCB != undefined) ? reportErrorCB : function(text) {}; \n \
- \n \
+        console.log(\"Opening connection with: \" + wsUrl); \n \
         websocketConnection = new WebSocket(wsUrl); \n \
         websocketConnection.addEventListener(\"message\", onServerMessage); \n \
       } \n \
  \n \
       window.onload = function() { \n \
-        var vidstream = document.getElementById(\"stream\"); \n \
-        var config = { 'iceServers': [{ 'urls': 'stun:" STUN_SERVER "' }] }; \n\
-        playStream(vidstream, null, null, null, config, function (errmsg) { console.error(errmsg); }); \n \
+        var config = { 'iceServers': [{ 'urls': 'stun:" STUN_SERVER "' }, {'urls': 'turn:"TURN_SERVER_TCP"', credential: 'webrtc', username: 'webrtc'}] }; \n\
+        playStream( null, null, null, config, function (errmsg) { console.error(errmsg); }); \n \
       }; \n \
  \n \
     </script> \n \
@@ -154,6 +175,7 @@ const gchar *html_source = " \n \
     <div> \n \
       <video id=\"stream\" autoplay playsinline>Your browser does not support video</video> \n \
     </div> \n \
+    <label id=\"textbox\" >0</label> \n \
   </body> \n \
 </html> \n \
 ";
@@ -177,15 +199,15 @@ create_receiver_entry (SoupWebsocketConnection * connection)
   error = NULL;
   receiver_entry->pipeline =
       gst_parse_launch ("webrtcbin name=webrtcbin stun-server=stun://"
-      STUN_SERVER " "
-      "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)1920, height=(string)1080, colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
-      "! rtpvrawdepay ! rawvideoparse width=1920 height=1080 format=11 !" //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
-      " videoconvert ! video/x-raw, format=YV12 ! x264enc bitrate=2048 speed-preset=medium tune=zerolatency key-int-max=15 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
-      "rtph264pay config-interval=-1 name=payloader aggregate-mode=zero-latency ! "
-      "application/x-rtp,media=video,encoding-name=H264,payload="
+      STUN_SERVER " turn-server=turn://webrtc:webrtc@" TURN_SERVER_TCP " "
+      "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)" WIDTH ", height=(string)" HEIGHT ", colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
+      "! rtpvrawdepay ! rawvideoparse width=" WIDTH " height=" HEIGHT " format=11 !" //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
+      " videoconvert ! video/x-raw, format=YV12 ! x264enc bitrate=1800 frame-packing=checkerboard speed-preset=medium tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
+      "rtph264pay name=payloader aggregate-mode=zero-latency ! "
+      "application/x-rtp,media=video,encoding-name=H264,profile-level-id=42c01f,payload="
       RTP_PAYLOAD_TYPE " ! webrtcbin. ", &error);
   if (error != NULL) {
-    g_error ("Could not create WebRTC pipeline: %s\n", error->message);
+    g_error ("Could not create WebRTC streaming pipeline: %s\n", error->message);
     g_error_free (error);
     goto cleanup;
   }
@@ -318,7 +340,8 @@ on_ice_candidate_cb (G_GNUC_UNUSED GstElement * webrtcbin, guint mline_index,
   json_object_unref (ice_json);
 
   soup_websocket_connection_send_text (receiver_entry->connection, json_string);
-  g_free (json_string);
+    if (json_string != NULL)
+        g_free (json_string);
 }
 
 
@@ -406,8 +429,7 @@ soup_websocket_message_cb (G_GNUC_UNUSED SoupWebsocketConnection * connection,
     ret = gst_sdp_message_new (&sdp);
     g_assert_cmphex (ret, ==, GST_SDP_OK);
 
-    ret =
-        gst_sdp_message_parse_buffer ((guint8 *) sdp_string,
+    ret = gst_sdp_message_parse_buffer ((guint8 *) sdp_string,
         strlen (sdp_string), sdp);
     if (ret != GST_SDP_OK) {
       g_error ("Could not parse SDP string\n");
@@ -445,15 +467,17 @@ soup_websocket_message_cb (G_GNUC_UNUSED SoupWebsocketConnection * connection,
     gst_print ("Received ICE candidate with mline index %u; candidate: %s\n",
         mline_index, candidate_string);
 
-    g_signal_emit_by_name (receiver_entry->webrtcbin, "add-ice-candidate",
-        mline_index, candidate_string);
+    if (g_strcmp0(candidate_string, "") != 0)
+        g_signal_emit_by_name (receiver_entry->webrtcbin, "add-ice-candidate",
+            mline_index, candidate_string);
   } else
     goto unknown_message;
 
 cleanup:
   if (json_parser != NULL)
     g_object_unref (G_OBJECT (json_parser));
-  g_free (data_string);
+  if (data_string != NULL)
+     g_free (data_string);
   return;
 
 unknown_message:
@@ -505,7 +529,7 @@ soup_websocket_handler (G_GNUC_UNUSED SoupServer * server,
   ReceiverEntry *receiver_entry;
   GHashTable *receiver_entry_table = (GHashTable *) user_data;
 
-  gst_print ("Processing new websocket connection %p", (gpointer) connection);
+  gst_print ("Processing new websocket connection %p\n", (gpointer) connection);
 
   g_signal_connect (G_OBJECT (connection), "closed",
       G_CALLBACK (soup_websocket_closed_cb), (gpointer) receiver_entry_table);
@@ -529,7 +553,8 @@ get_string_from_json_object (JsonObject * object)
   text = json_generator_to_data (generator, NULL);
 
   /* Release everything */
-  g_object_unref (generator);
+    if (generator != NULL)
+        g_object_unref (generator);
   json_node_free (root);
   return text;
 }

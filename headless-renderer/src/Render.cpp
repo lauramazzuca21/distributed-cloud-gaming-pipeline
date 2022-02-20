@@ -52,10 +52,6 @@ void Render::init() {
     glewInit();
 
     if (_useEGL) {
-        gl::log::debug::print("Reserving pixel buffer...");
-        pixels.reserve(width * height * 4);
-        gl::log::debug::print("Done.\n");
-
         gl::log::debug::print("Init buffers...");
         initBuffers();
         gl::log::debug::print("Done.\n");

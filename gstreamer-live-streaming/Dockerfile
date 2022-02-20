@@ -15,7 +15,7 @@ WORKDIR /usr/src/webRTC-streamer
 RUN apt-get install -y gcc \
                         make \
                         cmake \
-                        # iproute2 \
+                        avahi-daemon \
                         build-essential \
                         pkg-config \
                         libssl-dev \
