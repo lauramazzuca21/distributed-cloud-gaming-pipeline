@@ -29,7 +29,10 @@ class Render
 
     Render(bool useEGL = false) : _useEGL{useEGL} { 
         if(_useEGL)
+        {
+            _ctxt = new ContextEGL();
             _ctxt->init();
+        }
         init(); 
     }
     ~Render() {
