@@ -31,32 +31,16 @@ void Model::draw(ShaderProgram * shaderProgram, glm::mat4 view, glm::mat4 projec
 
 void Model::rotateOCS(Constants::VectorType rotationVector, GLfloat angle)
 {
-    GLfloat newAngle = 0.0f;
-    switch(rotationVector) {
-        case Constants::VectorType::X:
-            _rotAngles.x += angle;
-            newAngle = _rotAngles.x;
-            break;        
-        case Constants::VectorType::Y:
-            _rotAngles.y += angle;
-            newAngle = _rotAngles.y;
-            break;
-        case Constants::VectorType::Z:
-            _rotAngles.z += angle;
-            newAngle = _rotAngles.z;
-            break;
-    }
-
-    _M *= glm::rotate(glm::mat4(1.0f), glm::radians(newAngle), Constants::axisVectors.at(rotationVector));
+    _M = glm::rotate(_M, glm::radians(angle), Constants::axisVectors.at(rotationVector));
 }
 
 void Model::scaleOCS(glm::vec3 scaleFactor) {
     _scale = glm::vec3(scaleFactor);
-    _M *= glm::scale(glm::mat4(1.0f), _scale);
+    _M = glm::scale(_M, _scale);
 }
 
 void Model::translateOCS(glm::vec3 translationVector) {
-    _M *= glm::translate(glm::mat4(1.0f), translationVector);
+    _M = glm::translate(_M, translationVector);
 }
 
 void Model::rotateWCS(Constants::VectorType rotationVector, GLfloat angle)

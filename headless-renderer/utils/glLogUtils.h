@@ -11,6 +11,7 @@
 #define EGL_EGLEXT_PROTOTYPES
 #include <EGL/eglext.h>
 
+#define DEBUG
 namespace gl {
     namespace log {
 

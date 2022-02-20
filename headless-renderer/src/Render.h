@@ -22,23 +22,25 @@
 class Render
 {
     public:
-    static const int	width = 1920;
-    static const int	height = 1200;
+    static const int	width = 1280;
+    static const int	height = 720;
     float aspect = width/height*1.0f;
 
 
-    Render() { 
-        ctxt->init();
+    Render(bool useEGL = false) : _useEGL{useEGL} { 
+        if(_useEGL)
+            _ctxt->init();
         init(); 
-        }
+    }
     ~Render() {
         glDeleteRenderbuffers(1, &depth);
         glDeleteRenderbuffers(1, &color);
         glDeleteFramebuffers(1, &fb);
-
-        ctxt->terminate();
+        if(_useEGL)
+            _ctxt->terminate();
     }
-    const std::vector<uint8_t>& nextFramePixels();
+    const std::vector<uint8_t>& nextFrameAndGetPixels();
+    void nextFrame();
 
 private:
 
@@ -46,8 +48,8 @@ private:
 
     std::vector<uint8_t> pixels = std::vector<uint8_t>(width * height * 4);
 
-    ContextEGL* ctxt = new ContextEGL();
-
+    ContextEGL* _ctxt;
+    bool _useEGL = false;
     Light * light = new Light();
     Camera * camera = new Camera();
     Dragon * model;

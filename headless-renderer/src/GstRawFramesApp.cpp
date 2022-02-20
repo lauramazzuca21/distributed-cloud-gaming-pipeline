@@ -6,7 +6,7 @@
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer() { 
     
-    const std::vector<uint8_t>& frame = _render->nextFramePixels();
+    const std::vector<uint8_t>& frame = _render->nextFrameAndGetPixels();
 
     Glib::RefPtr<Gst::Buffer> bufferptr = Gst::Buffer::create(frame.size());
 
@@ -18,12 +18,26 @@ Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer() {
 gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 
     gboolean result = false;
+    static int frames = 0;
+    static Glib::RefPtr<Gst::Clock> _clock = Gst::SystemClock::obtain();
+    static Gst::ClockTime _baseTime = _clock->get_time();
+    
+    float time = (_clock->get_time() - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
+    
+    if (time >= 1.0f) //one second elapsed
+    {
+        _baseTime = _clock->get_time();
+        g_print("FPS count: %d\n", frames);
+        frames = 0;
+    }
 
     if (!app->getStreamApp()->sourceid) {
         return false;
     }
 
     Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(app->nextFrameBuffer());
+        
+    frames++;
 
     if (ret != Gst::FlowReturn::FLOW_OK)
     {

@@ -4,7 +4,7 @@
 #include "../extern/stb_image_write.h"
 
 const std::vector<uint8_t>& Render::getPixels() {
-    gl::log::debug::print("Reading pixels...");
+    // gl::log::debug::print("Reading pixels...");
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
     for(int line = 0; line != height/2; ++line) {
@@ -14,38 +14,52 @@ const std::vector<uint8_t>& Render::getPixels() {
                 pixels.begin() + 4 * width * (height-line-1));
     }
     gl::log::errors::assertOpenGLError("glReadPixels");
-    gl::log::debug::print("Read %lu pixels.\n", pixels.size());
+    // gl::log::debug::print("Read %lu pixels.\n", pixels.size());
 
     return pixels;
 }
 
 void Render::initBuffers() {
     //correct setup thanks to https://github.com/cirosantilli/cpp-cheat/blob/70b22ac36f92e93c94f951edb8b5af7947546525/opengl/offscreen.c
+    gl::log::debug::print("\nFRAMEBUFFER...");
 //1. Generate framebuffer to hold rendering destination
     glGenFramebuffers(1, &fb);
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
+    gl::log::debug::print("Done.\n");
 //2. Generate color render buffer
+    gl::log::debug::print("RENDERBUFFER...");
     glGenRenderbuffers(1, &color);
     glBindRenderbuffer(GL_RENDERBUFFER, color);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, width, height);
     gl::log::errors::assertOpenGLError("glRenderbufferStorage");
     glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color);
     gl::log::errors::assertOpenGLError("glFramebufferRenderbuffer");
+    gl::log::debug::print("Done.\n");
 //3. Generate depth render buffer with 32 bit component to handle alpha as well
+    gl::log::debug::print("DEPTHBUFFER...");
     glGenRenderbuffers(1, &depth);
     glBindRenderbuffer(GL_RENDERBUFFER, depth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
     glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
+    gl::log::debug::print("Done.\n");
 //4.
     glReadBuffer(GL_COLOR_ATTACHMENT0);
+    gl::log::errors::assertOpenGLError("glReadBuffer");
 }
 
 void Render::init() {
+    gl::log::debug::print("Init GLEW\n");
     glewInit();
 
-    pixels.reserve(width * height * 4);
+    if (_useEGL) {
+        gl::log::debug::print("Reserving pixel buffer...");
+        pixels.reserve(width * height * 4);
+        gl::log::debug::print("Done.\n");
 
-    initBuffers();
+        gl::log::debug::print("Init buffers...");
+        initBuffers();
+        gl::log::debug::print("Done.\n");
+    }
 
     model = new Dragon("xyzrgb_dragon", Constants::ShadingType::PHONG);
 
@@ -79,9 +93,13 @@ void Render::init() {
     gl::log::errors::checkFramebufferStatus();
 }
 
-const std::vector<uint8_t>& Render::nextFramePixels() {
+const std::vector<uint8_t>& Render::nextFrameAndGetPixels() {
+    nextFrame();
+    return getPixels();
+}
 
-	Projection = camera->getProjectionMatrix(width, height);
+void Render::nextFrame() {
+    Projection = camera->getProjectionMatrix(width, height);
 	View = camera->getViewMatrix();
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -98,6 +116,4 @@ const std::vector<uint8_t>& Render::nextFramePixels() {
     glFinish();
     gl::log::errors::assertOpenGLError("glFinish");
 
-
-    return getPixels();
 }
