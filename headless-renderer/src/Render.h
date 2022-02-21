@@ -16,7 +16,6 @@
 #include "../graphics/Camera.h"
 
 #include "Dragon.h"
-#include "Buddha.h"
 
 class Render
 {
@@ -41,8 +40,8 @@ class Render
         if(_useEGL)
             _ctxt->terminate();
     }
-    const std::vector<uint8_t>& nextFrameAndGetPixels();
-    void nextFrame();
+    const std::vector<uint8_t>& nextFrameAndGetPixels(double dt = 1.0/60.0);
+    void nextFrame(double dt = 1.0/60.0);
 
 private:
 
@@ -54,8 +53,7 @@ private:
     bool _useEGL = false;
     Light * light = new Light();
     Camera * camera = new Camera();
-    Dragon * dragon;
-    Buddha * buddha;
+    std::vector<Dragon *> dragons;
     std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
 
     glm::mat4 Projection, View;

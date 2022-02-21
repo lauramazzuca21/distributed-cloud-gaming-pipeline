@@ -1,8 +1,7 @@
 #include "Dragon.h"
 
-Dragon::Dragon(std::string name, Constants::ShadingType shader, 
-        Constants::MaterialType material) : Model::Model("meshes/xyzrgb_dragon.obj", name, shader, material) {
-        scaleOCS(glm::vec3(0.05f));
+Dragon::Dragon(std::string name, Constants::MaterialType material, Constants::ShadingType shader) 
+    : Model::Model("meshes/xyzrgb_dragon.obj", name, shader, material) {
 }
 
 void Dragon::draw(ShaderProgram * shaderProgram, glm::mat4 view, glm::mat4 projection) {

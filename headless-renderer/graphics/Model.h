@@ -36,7 +36,6 @@ public:
     glm::vec3 getPosition() { return glm::vec3(_M[3].x, _M[3].y, _M[3].z); }
 
 
-protected: 
     void rotateOCS(Constants::VectorType rotation_vector, GLfloat angle);
     void scaleOCS(glm::vec3 scale_factor);
     void translateOCS(glm::vec3 translation_vector);

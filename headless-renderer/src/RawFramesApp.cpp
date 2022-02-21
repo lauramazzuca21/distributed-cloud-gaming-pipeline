@@ -16,9 +16,6 @@ void RawFramesApp::init() {
         return;
     }
       printf ("Creating GLFW _window\n");
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     _window = glfwCreateWindow(_render->width, _render->height, "Dragon", NULL, NULL);
     
@@ -38,10 +35,11 @@ void RawFramesApp::run(int argc, char *argv[]) {
     int frameCount = 0;
     double previousTime = glfwGetTime();
     while (!glfwWindowShouldClose(_window)) {  //close _window
-
-        _render->nextFrame();
-        frameCount++;
         double currentTime = glfwGetTime();
+        double dt = currentTime - previousTime;
+        
+        _render->nextFrame(dt);
+        frameCount++;
         // If a second has passed.
         if ( currentTime - previousTime >= 1.0 )
         {
