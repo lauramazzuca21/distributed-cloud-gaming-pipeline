@@ -35,10 +35,11 @@ void RawFramesApp::run(int argc, char *argv[]) {
     int frameCount = 0;
     double previousTime = glfwGetTime();
     while (!glfwWindowShouldClose(_window)) {  //close _window
-
-        _render->nextFrame();
-        frameCount++;
         double currentTime = glfwGetTime();
+        double dt = currentTime - previousTime;
+        
+        _render->nextFrame(dt);
+        frameCount++;
         // If a second has passed.
         if ( currentTime - previousTime >= 1.0 )
         {
