@@ -33,21 +33,23 @@ void RawFramesApp::init() {
 
 void RawFramesApp::run(int argc, char *argv[]) {
     int frameCount = 0;
-    double previousTime = glfwGetTime();
+    double baseTime = glfwGetTime();
+    double previousTime = baseTime;
     while (!glfwWindowShouldClose(_window)) {  //close _window
         double currentTime = glfwGetTime();
         double dt = currentTime - previousTime;
+        previousTime = currentTime;
         
         _render->nextFrame(dt);
         frameCount++;
         // If a second has passed.
-        if ( currentTime - previousTime >= 1.0 )
+        if ( currentTime - baseTime >= 1.0 )
         {
             // Display the frame count here any way you want.
             gl::log::debug::print("FPS: %d\n", frameCount);
 
             frameCount = 0;
-            previousTime = currentTime;
+            baseTime = currentTime;
         }
         glfwSwapBuffers(_window); //swap buffer
         glfwPollEvents();
