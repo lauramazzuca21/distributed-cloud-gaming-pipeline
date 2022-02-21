@@ -1,6 +1,7 @@
 #include "RawFramesApp.h"
 #include <sstream>
 #include <csignal>
+#include <chrono>
 
 void RawFramesApp::exit_sighandler (int signum)
 {
@@ -33,17 +34,18 @@ void RawFramesApp::init() {
 
 void RawFramesApp::run(int argc, char *argv[]) {
     int frameCount = 0;
-    double baseTime = glfwGetTime();
-    double previousTime = baseTime;
+    std::chrono::steady_clock::time_point baseTime = std::chrono::steady_clock::now();    
+    std::chrono::steady_clock::time_point previousTime = baseTime;
+    
     while (!glfwWindowShouldClose(_window)) {  //close _window
-        double currentTime = glfwGetTime();
-        double dt = currentTime - previousTime;
+    std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();    
+        double dt =  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - previousTime).count();
         previousTime = currentTime;
         
         _render->nextFrame(dt);
         frameCount++;
         // If a second has passed.
-        if ( currentTime - baseTime >= 1.0 )
+        if ( std::chrono::duration_cast<std::chrono::seconds>(currentTime - baseTime).count() >= 1.0 )
         {
             // Display the frame count here any way you want.
             gl::log::debug::print("FPS: %d\n", frameCount);

@@ -68,7 +68,7 @@ void Render::init() {
     for (auto dragon : dragons)
     {
         scale *= 1.5f;
-        pos -= 200.0f;
+        pos -= 100.0f;
         dragon->scaleOCS(glm::vec3(scale));
         dragon->translateOCS(glm::vec3(0.0f, 0.0f, pos));
         if (loadedShaders.find(dragon->getShaderType()) == loadedShaders.end()) {
@@ -111,7 +111,7 @@ void Render::nextFrame(double dt) {
     static double sec = 0.0;
     static int nDraw = 1;
     sec += dt;
-    if (sec > 60.0) //a minute passed, let's increase rendered dragons
+    if (sec > 60000.0) //a minute passed, let's increase rendered dragons
     {
         nDraw += 1;
         if (nDraw > dragons.size())
