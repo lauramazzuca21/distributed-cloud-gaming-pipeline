@@ -54,6 +54,8 @@ private:
     Light * light = new Light();
     Camera * camera = new Camera();
     std::vector<Dragon *> dragons;
+    std::vector<Dragon *> dragons_top;
+    std::vector<Dragon *> dragons_bottom;
     std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
 
     glm::mat4 Projection, View;

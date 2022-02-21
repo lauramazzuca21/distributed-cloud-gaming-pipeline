@@ -23,12 +23,11 @@ void RawFramesApp::init() {
         glfwTerminate();
         return;
     }
-
+   
     glfwMakeContextCurrent(_window);
     printf ("Window loaded\n");
-
-    _render = new Render();
-
+    
+	_render = new Render();
 }
 
 void RawFramesApp::run(int argc, char *argv[]) {
