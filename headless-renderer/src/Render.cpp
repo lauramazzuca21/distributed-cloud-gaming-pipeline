@@ -143,6 +143,7 @@ void Render::nextFrame(double dt) {
     static double sec = 0.0;
     static int nDraw = 1;
     sec += dt;
+
     if (sec > 10.0) //half a minute passed, let's increase rendered dragons
     {
         nDraw += 1;
