@@ -1,6 +1,6 @@
 // Fragment shader: : Phong shading
 // ================
-#version 450 core
+#version 410 core
 
 in vec3 N;
 in vec3 L;

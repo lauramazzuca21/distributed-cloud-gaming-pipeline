@@ -1,6 +1,6 @@
 // Fragment shader: : Gouraud shading
 // ================
-#version 450 core
+#version 410 core
 
 // Ouput data
 out vec4 FragColor;
