@@ -22,6 +22,7 @@ class Render
     public:
     static const int	width = 1280;
     static const int	height = 720;
+    static const int	MAX_DRAGONS_PER_ROW = 10;
     float aspect = width/height*1.0f;
 
 

@@ -56,39 +56,22 @@ void Render::init() {
         initBuffers();
         gl::log::debug::print("Done.\n");
     }
-gl::log::debug::print("Loading Dragons...");
-    dragons.push_back(new Dragon("xyzrgb_dragon_1"));
-    dragons.push_back(new Dragon("xyzrgb_dragon_2", Constants::MaterialType::BRASS));
-    dragons.push_back(new Dragon("xyzrgb_dragon_3", Constants::MaterialType::RED_PLASTIC));
-    dragons.push_back(new Dragon("xyzrgb_dragon_4", Constants::MaterialType::SLATE));
-    dragons.push_back(new Dragon("xyzrgb_dragon_5", Constants::MaterialType::YELLOW_RUBBER));
-    dragons.push_back(new Dragon("xyzrgb_dragon_1"));
-    dragons.push_back(new Dragon("xyzrgb_dragon_2", Constants::MaterialType::BRASS));
-    dragons.push_back(new Dragon("xyzrgb_dragon_3", Constants::MaterialType::RED_PLASTIC));
-    dragons.push_back(new Dragon("xyzrgb_dragon_4", Constants::MaterialType::SLATE));
-    dragons.push_back(new Dragon("xyzrgb_dragon_5", Constants::MaterialType::YELLOW_RUBBER));
-    gl::log::debug::print("Done.\n Loading top dragons...");
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_1"));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_2", Constants::MaterialType::BRASS));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_3", Constants::MaterialType::RED_PLASTIC));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_4", Constants::MaterialType::SLATE));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_5", Constants::MaterialType::YELLOW_RUBBER));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_1"));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_2", Constants::MaterialType::BRASS));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_3", Constants::MaterialType::RED_PLASTIC));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_4", Constants::MaterialType::SLATE));
-    dragons_top.push_back(new Dragon("xyzrgb_dragon_5", Constants::MaterialType::YELLOW_RUBBER));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_1"));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_2", Constants::MaterialType::BRASS));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_3", Constants::MaterialType::RED_PLASTIC));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_4", Constants::MaterialType::SLATE));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_5", Constants::MaterialType::YELLOW_RUBBER));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_1"));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_2", Constants::MaterialType::BRASS));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_3", Constants::MaterialType::RED_PLASTIC));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_4", Constants::MaterialType::SLATE));
-    dragons_bottom.push_back(new Dragon("xyzrgb_dragon_5", Constants::MaterialType::YELLOW_RUBBER));
-gl::log::debug::print("Done.\n Setting up all dragons...");
+    gl::log::debug::print("Loading Dragons...");
+    std::stringstream s;
+    for(int i = 0; i < MAX_DRAGONS_PER_ROW; i++)
+    {
+        s << "xyzrgb_dragon_" << i;
+        dragons.push_back(new Dragon(s.str()));
+        s.clear();
+        s << "xyzrgb_dragon_top_" << i;
+        dragons_top.push_back(new Dragon(s.str()));
+        s.clear();
+        s << "xyzrgb_dragon_bottom_" << i;
+        dragons_bottom.push_back(new Dragon(s.str()));
+        s.clear();
+    }
+
+    gl::log::debug::print("Done.\n Setting up all dragons...");
     float scale = 0.05f;
     float pos = 250.0f;
     for (int i = 0; i < dragons.size(); i++)
@@ -140,25 +123,26 @@ const std::vector<uint8_t>& Render::nextFrameAndGetPixels(double dt) {
 }
 
 void Render::nextFrame(double dt) {
-    static double sec = 0.0;
+    static double millisec = 0.0;
     static int nDraw = 1;
-    sec += dt;
+    millisec += dt;
 
-    if (sec > 10.0) //half a minute passed, let's increase rendered dragons
+    if (millisec > 10000.0 && nDraw < MAX_DRAGONS_PER_ROW) //10 seconds have passed, let's increase rendered dragons
     {
         nDraw += 1;
-        if (nDraw > dragons.size())
-        {
-            nDraw = dragons.size();
-        }
-        sec = 0.0;
+        millisec = 0.0;
     }
+
     Projection = camera->getProjectionMatrix(width, height);
 	View = camera->getViewMatrix();
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     for (int i = 0; i < nDraw; i++)
     {
+        dragons.at(i)->update(dt);
+        dragons_top.at(i)->update(dt);        
+        dragons_bottom.at(i)->update(dt);
+
         ShaderProgram * currentShader = loadedShaders[dragons.at(i)->getShaderType()];
     
         currentShader->enable();
