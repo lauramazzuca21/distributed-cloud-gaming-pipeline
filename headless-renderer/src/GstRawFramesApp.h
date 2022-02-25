@@ -34,7 +34,7 @@ private:
 public:
     void run(int argc, char *argv[]);
     RawFramesAppPtr getStreamApp() { return _streamApp; }
-    Glib::RefPtr<Gst::Buffer> nextFrameBuffer();
+    Glib::RefPtr<Gst::Buffer> nextFrameBuffer(double dt);
 
     // GstRawFramesApp();
     ~GstRawFramesApp() {

@@ -4,9 +4,9 @@
 #include <glib-unix.h>
 #endif
 
-Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer() { 
-    
-    const std::vector<uint8_t>& frame = _render->nextFrameAndGetPixels();
+Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) { 
+    _render->update(dt);
+    const std::vector<uint8_t>& frame = _render->nextFrameAndGetPixels(dt);
 
     Glib::RefPtr<Gst::Buffer> bufferptr = Gst::Buffer::create(frame.size());
 
@@ -21,12 +21,15 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     static int frames = 0;
     static Glib::RefPtr<Gst::Clock> _clock = Gst::SystemClock::obtain();
     static Gst::ClockTime _baseTime = _clock->get_time();
+    static Gst::ClockTime _previousTime = _clock->get_time();
     
-    float time = (_clock->get_time() - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
+    Gst::ClockTime currentTime = _clock->get_time();
+
+    float time = (currentTime - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
     
     if (time >= 1.0f) //one second elapsed
     {
-        _baseTime = _clock->get_time();
+        _baseTime = currentTime;
         g_print("FPS count: %d\n", frames);
         frames = 0;
     }
@@ -34,9 +37,9 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     if (!app->getStreamApp()->sourceid) {
         return false;
     }
-
-    Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(app->nextFrameBuffer());
-        
+    double dt = (currentTime-_previousTime)/1000000.0; //dt in milliseconds
+    _previousTime = currentTime;
+    Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(app->nextFrameBuffer(dt)); 
     frames++;
 
     if (ret != Gst::FlowReturn::FLOW_OK)
@@ -52,7 +55,7 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     std::stringstream str;
-    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << " ! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA ! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
+    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=60/1 ! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA ! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
 
     _streamApp = std::make_shared<_RawFramesApp>();
     Glib::RefPtr<Gst::Element> pipeline;
@@ -83,14 +86,14 @@ gboolean GstRawFramesApp::createPipeline(int width, int height) {
 void GstRawFramesApp::enableStream(guint, RawFramesAppPtr app) {
     
     if (app->sourceid == 0) {
-        app->sourceid = g_idle_add ((GSourceFunc) &pushData, this);
+        app->sourceid = g_idle_add_full (G_PRIORITY_HIGH_IDLE+20, (GSourceFunc) &pushData, this, NULL); //call every 1/60 sec to enforce 60fps
     }
 }
 
 
 void GstRawFramesApp::disableStream(RawFramesAppPtr app) {
     if (app->sourceid != 0) {
-        g_idle_remove_by_data(this);
+        g_source_remove(app->sourceid);
         app->sourceid = 0;
     }
 }

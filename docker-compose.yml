@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  headlessrenderer:
+    image: lauramazzuca/headless-renderer:latest
+    network_mode: host
+  webrtcstreamer:
+    image: lauramazzuca/webrtc-streamer:latest
+    network_mode: host
+    

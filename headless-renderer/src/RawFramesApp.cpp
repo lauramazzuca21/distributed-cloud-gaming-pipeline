@@ -40,9 +40,14 @@ void RawFramesApp::run(int argc, char *argv[]) {
     std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();    
         double dt =  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - previousTime).count();
         previousTime = currentTime;
+        _render->update(dt);
         
-        _render->nextFrame(dt);
-        frameCount++;
+        // if (frameCount < 25) //uncomment to enforce fps
+        // {
+            _render->nextFrame(dt);
+            frameCount++;
+        // }
+
         // If a second has passed.
         if ( std::chrono::duration_cast<std::chrono::seconds>(currentTime - baseTime).count() >= 1.0 )
         {

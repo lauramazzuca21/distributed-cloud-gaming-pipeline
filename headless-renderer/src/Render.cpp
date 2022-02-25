@@ -122,9 +122,17 @@ const std::vector<uint8_t>& Render::nextFrameAndGetPixels(double dt) {
     return getPixels();
 }
 
+void Render::update(double dt) {
+    for (int i = 0; i < nDraw; i++)
+    {
+        dragons.at(i)->update(dt);
+        dragons_top.at(i)->update(dt);        
+        dragons_bottom.at(i)->update(dt);
+    }
+}
+
 void Render::nextFrame(double dt) {
     static double millisec = 0.0;
-    static int nDraw = 1;
     millisec += dt;
 
     if (millisec > 10000.0 && nDraw < MAX_DRAGONS_PER_ROW) //10 seconds have passed, let's increase rendered dragons
@@ -139,10 +147,6 @@ void Render::nextFrame(double dt) {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     for (int i = 0; i < nDraw; i++)
     {
-        dragons.at(i)->update(dt);
-        dragons_top.at(i)->update(dt);        
-        dragons_bottom.at(i)->update(dt);
-
         ShaderProgram * currentShader = loadedShaders[dragons.at(i)->getShaderType()];
     
         currentShader->enable();

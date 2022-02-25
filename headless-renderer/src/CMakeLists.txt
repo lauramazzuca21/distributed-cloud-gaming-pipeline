@@ -2,7 +2,7 @@ file(GLOB SRCs
      "*.h"
      "*.cpp"
 )
-SET(GLFW TRUE)
+SET(GLFW FALSE)
 
 if(GLFW)
     list(REMOVE_ITEM SRCs "${CMAKE_CURRENT_LIST_DIR}/GstRawFramesApp.cpp")

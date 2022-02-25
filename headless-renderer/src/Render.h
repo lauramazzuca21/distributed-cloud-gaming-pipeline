@@ -24,7 +24,7 @@ class Render
     static const int	height = 720;
     static const int	MAX_DRAGONS_PER_ROW = 10;
     float aspect = width/height*1.0f;
-
+    int nDraw = 1;
 
     Render(bool useEGL = false) : _useEGL{useEGL} { 
         if(_useEGL)
@@ -41,9 +41,9 @@ class Render
         if(_useEGL)
             _ctxt->terminate();
     }
-    const std::vector<uint8_t>& nextFrameAndGetPixels(double dt = 1.0/60.0);
-    void nextFrame(double dt = 1.0/60.0);
-
+    const std::vector<uint8_t>& nextFrameAndGetPixels(double dt);
+    void nextFrame(double dt);
+    void update(double dt);
 private:
 
     GLuint fb, color, depth;

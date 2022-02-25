@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(EGL-Test)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
-SET(GLFW TRUE)
+SET(GLFW FALSE)
 
 file(GLOB SRCs
      "*.h"
