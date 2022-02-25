@@ -21,7 +21,7 @@
 │   ├── Dockerfile	                                # Docker image boilerplate
 ```
 
-# Installing the Media Live Streamer
+# Installing the WebRTC Streamer
 ## Dependencies
 > These dependencies have been listed here since the environment used for Docker is GStreamer ready. For other dependencies plese see the [Dockerfile](https://github.com/lauramazzuca21/distributed-cloud-gaming-pipeline/blob/master/gstreamer-live-streaming/Dockerfile)
   
