@@ -1,9 +1,6 @@
 # Distributed Cloud Gaming Pipeline
 
-> The sources used for this project work are cataloged in [this Notion notebook](https://psyugengames.notion.site/Project-Work-cda5b4615b99439ea44ce406825f8185).  
-> The report is written on [this Overleaf project](https://www.overleaf.com/read/cxsnttvjtshz).
-
-# Structure of the repository
+## Structure of the repository
 ```bash
 .
 ├── gstreamer-live-streaming                        # Live streaming WebRTC server (C)
