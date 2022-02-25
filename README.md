@@ -7,16 +7,21 @@
 ```bash
 .
 ├── gstreamer-live-streaming                        # Live streaming WebRTC server (C)
-│   ├── bin/                                            # Folder containing the install script output
 │   ├── gstreamer-cheatsheet.md                         # Overview of GStreamer's most important elements
-│   ├── install.sh                                      # install script
-│   ├── media-live-streamer.c                           # source code
-├── openGL-offscreen-rendering/headless-renderer    # Example of headless rendering a 3D revolving cube using EGL (C++)
-│   ├── frames/                                         # Folder containing the produced jpeg frames
 │   ├── CMakeLists.txt                                  # CMake boilerplate
-│   ├── Errors.h                                        # Header with error handling functions
-│   ├── main.cpp                                        # entry point; initializes EGL and calls Render class in loop
-│   ├── Render.[h|cpp]                                  # Render class to render the 3D cube 
+│   ├── media-live-streamer.c                           # source code
+│   ├── Dockerfile	                                # Docker image boilerplate
+├── openGL-offscreen-rendering/headless-renderer    # Example of 3D mesh headless rendering using EGL (C++)
+│   ├── main.cpp                                        # entry point of the program
+│   ├── src/                                         	# Folder containing the source code
+│   ├── graphics/                                       # Folder containing graphics-related classes
+│   ├── utils/		                                # Utilities headers 
+│   ├── extern/                                         # Extern libraries
+│   ├── CMakeLists.txt                                  # CMake boilerplate
+│   ├── cmake-modules/                                  # Folder containing modules to find libraries
+│   ├── meshes/                                  	# Folder containing the meshes obj files
+│   ├── shaders/                                 	# Folder containing the GLSL shader programs
+│   ├── Dockerfile	                                # Docker image boilerplate
 ```
 
 # Installing the Media Live Streamer
