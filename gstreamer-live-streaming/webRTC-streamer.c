@@ -202,7 +202,7 @@ create_receiver_entry (SoupWebsocketConnection * connection)
       STUN_SERVER " turn-server=turn://webrtc:webrtc@" TURN_SERVER_TCP " "
       "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)" WIDTH ", height=(string)" HEIGHT ", colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
       "! rtpvrawdepay ! rawvideoparse width=" WIDTH " height=" HEIGHT " format=11 !" //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
-      " videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 ! x264enc bitrate=1800 key-int-max=60 frame-packing=checkerboard speed-preset=medium tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
+      " videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 ! x264enc bitrate=1800 key-int-max=150 frame-packing=checkerboard speed-preset=faster tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
       "rtph264pay name=payloader aggregate-mode=zero-latency ! "
       "application/x-rtp,media=video,encoding-name=H264,profile-level-id=42c01f,payload="
       RTP_PAYLOAD_TYPE " ! webrtcbin. ", &error);
