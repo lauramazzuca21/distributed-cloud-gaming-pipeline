@@ -65,7 +65,7 @@ To run the application run:
 ### Docker container setup
 To install from a clone of this repository
 ```bash
-sudo docker build . -t webrtc-streamer:1
+sudo docker build . -t webrtc-streamer:latest
 ```
 To download from [docker hub](https://hub.docker.com/repository/docker/lauramazzuca/webrtc-streamer)
 ```bash
@@ -74,7 +74,7 @@ docker pull lauramazzuca/webrtc-streamer:latest
 
 Then run it with host network configuration with
 ```bash
-sudo docker run --rm --network host -dit webrtc-streamer:1
+sudo docker run --rm --network host -dit webrtc-streamer:latest
 ```
 
 # Installing the Headless Renderer
@@ -119,7 +119,7 @@ then, to run it:
 ### Docker container setup
 To install from a clone of this repository
 ```bash
-sudo docker build . -t headless-renderer:1
+sudo docker build . -t headless-renderer:latest
 ```
 To download from [docker hub](https://hub.docker.com/repository/docker/lauramazzuca/headless-renderer)
 ```bash
@@ -128,5 +128,5 @@ docker pull lauramazzuca/headless-renderer:latest
 
 Then run it with host network configuration with
 ```bash
-sudo docker run --rm --network host -dit headless-renderer:1
+sudo docker run --rm --network host -dit headless-renderer:latest
 ```
