@@ -187,6 +187,7 @@ create_receiver_entry (SoupWebsocketConnection * connection)
   ReceiverEntry *receiver_entry;
   GstWebRTCRTPTransceiver *trans;
   GArray *transceivers;
+  GstElement *rtpbin;
 
   receiver_entry = g_slice_alloc0 (sizeof (ReceiverEntry));
   receiver_entry->connection = connection;
@@ -202,7 +203,7 @@ create_receiver_entry (SoupWebsocketConnection * connection)
       STUN_SERVER " turn-server=turn://webrtc:webrtc@" TURN_SERVER_TCP " "
       "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)" WIDTH ", height=(string)" HEIGHT ", colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
       "! rtpvrawdepay ! rawvideoparse width=" WIDTH " height=" HEIGHT " format=11 !" //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
-      " videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 ! x264enc bitrate=1800 key-int-max=150 frame-packing=checkerboard speed-preset=faster tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
+      " videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 ! x264enc bitrate=3500 interlaced=true frame-packing=checkerboard speed-preset=faster tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue  leaky=downstream ! h264parse ! "
       "rtph264pay name=payloader aggregate-mode=zero-latency ! "
       "application/x-rtp,media=video,encoding-name=H264,profile-level-id=42c01f,payload="
       RTP_PAYLOAD_TYPE " ! webrtcbin. ", &error);
@@ -212,26 +213,30 @@ create_receiver_entry (SoupWebsocketConnection * connection)
     goto cleanup;
   }
 
-  receiver_entry->webrtcbin =
-      gst_bin_get_by_name (GST_BIN (receiver_entry->pipeline), "webrtcbin");
-  g_assert (receiver_entry->webrtcbin != NULL);
+    receiver_entry->webrtcbin =
+        gst_bin_get_by_name (GST_BIN (receiver_entry->pipeline), "webrtcbin");
+    g_assert (receiver_entry->webrtcbin != NULL);
 
-  g_signal_emit_by_name (receiver_entry->webrtcbin, "get-transceivers",
-      &transceivers);
-  g_assert (transceivers != NULL && transceivers->len > 0);
-  trans = g_array_index (transceivers, GstWebRTCRTPTransceiver *, 0);
-  trans->direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY;
-  g_array_unref (transceivers);
+    rtpbin = gst_bin_get_by_name (GST_BIN (receiver_entry->webrtcbin), "rtpbin");
+    g_object_set (rtpbin, "latency", 10, NULL);
+    gst_object_unref (rtpbin);
 
-  g_signal_connect (receiver_entry->webrtcbin, "on-negotiation-needed",
-      G_CALLBACK (on_negotiation_needed_cb), (gpointer) receiver_entry);
+    g_signal_emit_by_name (receiver_entry->webrtcbin, "get-transceivers",
+        &transceivers);
+    g_assert (transceivers != NULL && transceivers->len > 0);
+    trans = g_array_index (transceivers, GstWebRTCRTPTransceiver *, 0);
+    trans->direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY;
+    g_array_unref (transceivers);
 
-  g_signal_connect (receiver_entry->webrtcbin, "on-ice-candidate",
-      G_CALLBACK (on_ice_candidate_cb), (gpointer) receiver_entry);
+    g_signal_connect (receiver_entry->webrtcbin, "on-negotiation-needed",
+        G_CALLBACK (on_negotiation_needed_cb), (gpointer) receiver_entry);
 
-  gst_element_set_state (receiver_entry->pipeline, GST_STATE_PLAYING);
+    g_signal_connect (receiver_entry->webrtcbin, "on-ice-candidate",
+        G_CALLBACK (on_ice_candidate_cb), (gpointer) receiver_entry);
 
-  return receiver_entry;
+    gst_element_set_state (receiver_entry->pipeline, GST_STATE_PLAYING);
+
+    return receiver_entry;
 
 cleanup:
   destroy_receiver_entry ((gpointer) receiver_entry);
