@@ -111,26 +111,27 @@ namespace gl {
                 }
             }
 
-            static void checkFramebufferStatus()
-            {                                                         
+            static std::string checkFramebufferStatus()
+            {        
+                //                                                 
                 GLenum status;
                 status = glCheckFramebufferStatus(GL_FRAMEBUFFER); 
                 switch(status) {
                 case GL_FRAMEBUFFER_COMPLETE:
-                    break;
+                    return "";
                 case GL_FRAMEBUFFER_UNSUPPORTED:
-                    throw std::runtime_error("GL_FRAMEBUFFER_UNSUPPORTED");
+                    return "GL_FRAMEBUFFER_UNSUPPORTED";
                 case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                    throw std::runtime_error("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+                    return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
                 case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-                    throw std::runtime_error("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+                    return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
                 case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-                    throw std::runtime_error("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+                    return "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
                 case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-                    throw std::runtime_error("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+                    return "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
                 default:
                     /* programming error; will fail on all hardware */
-                    throw std::runtime_error("Framebuffer Error");
+                    return "Framebuffer Error";
                 }
             }
 

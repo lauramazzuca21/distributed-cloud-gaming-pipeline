@@ -8,6 +8,19 @@
  #include "Enums.h"
 
 namespace Constants {
+
+    struct GameObjectAttrbutes {
+        std::string _mesh; //change to mesh_id:[string|enum]
+        Constants::ShadingType _shader; 
+        Constants::MaterialType _material; 
+
+        std::string _name; //this should be the id to ref the remote model
+        
+        glm::mat4 _M;
+        glm::vec3 _scale = glm::vec3(1.0f);
+        glm::vec3 _rotAngles = glm::vec3(0.0f);
+
+    };
     
       struct Material {
         std::string name;

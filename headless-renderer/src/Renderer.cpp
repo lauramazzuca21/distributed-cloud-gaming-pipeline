@@ -119,7 +119,8 @@ void Renderer::init() {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     gl::log::printStats();
-    gl::log::errors::checkFramebufferStatus();
+    gl::log::errors::checkFramebufferStatus(); //this check should be done outside of the constructor, maybe calling init in a second moment
+                                               //that's because, by cppiso, errors happening in the constructor should be handled by exceptions
 }
 
 // void Renderer::update(double dt) { //to be moved into state handler
