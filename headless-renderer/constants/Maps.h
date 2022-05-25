@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Enums.h"
+#include "Values.h"
 
 namespace Constants {
     static const std::map<ShadingType, std::pair<std::string, std::string>> shaderFiles = {
@@ -16,11 +17,7 @@ namespace Constants {
         {ShadingType::WAVE, {"shaders/v_wave.glsl","shaders/f_wave.glsl"}}
     };
 
-    static const std::map<VectorType, glm::vec3> axisVectors = {
-        {VectorType::X, glm::vec3(1.0f, 0.0f, 0.0f)},
-        {VectorType::Y, glm::vec3(0.0f, 1.0f, 0.0f)},
-        {VectorType::Z, glm::vec3(0.0f, 0.0f, 1.0f)}
-    };
+    static const glm::vec3 axis_3[3]{X_AXIS_3, Y_AXIS_3, Z_AXIS_3};
 }
 
 #endif

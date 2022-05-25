@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "../utils/glLogUtils.h"
-#include "constants/Maps.h"
+#include "../constants/Maps.h"
 
 class ShaderProgram
 {

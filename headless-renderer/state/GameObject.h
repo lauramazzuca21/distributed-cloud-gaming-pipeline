@@ -7,7 +7,7 @@
 #include "../constants/Enums.h"
 
 class GameObject {
-    //these will be bound in the renderer, the model should become the GameObject state holder
+
     std::string _mesh; //change to mesh_id:[string|enum]
     Constants::ShadingType _shader; 
     Constants::MaterialType _material; 

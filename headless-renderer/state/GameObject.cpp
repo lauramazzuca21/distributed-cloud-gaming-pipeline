@@ -1,8 +1,9 @@
 #include "GameObject.h"
+#include "../constants/Maps.h"
 
-void GameObject::rotateOCS(Constants::VectorType rotationVector, GLfloat angle)
+void GameObject::rotateOCS(Constants::VectorType rotationVector, float angle)
 {
-    _M = glm::rotate(_M, glm::radians(angle), Constants::axisVectors.at(rotationVector));
+    _M = glm::rotate(_M, glm::radians(angle), Constants::axis_3[rotationVector]);
 }
 
 void GameObject::scaleOCS(glm::vec3 scaleFactor) {
@@ -14,7 +15,7 @@ void GameObject::translateOCS(glm::vec3 translationVector) {
     _M = glm::translate(_M, translationVector);
 }
 
-void GameObject::rotateWCS(Constants::VectorType rotationVector, GLfloat angle)
+void GameObject::rotateWCS(Constants::VectorType rotationVector, float angle)
 {
     glm::mat4 currentM = _M;
     glm::mat4 inverseAxisM = glm::inverse(_M);
