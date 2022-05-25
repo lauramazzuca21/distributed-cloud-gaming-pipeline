@@ -4,10 +4,10 @@ Dragon::Dragon(std::string name, Constants::MaterialType material, Constants::Sh
     : Model::Model("meshes/xyzrgb_dragon.obj", name, shader, material) {
 }
 
-void Dragon::update(double dt) {
+// void Dragon::update(double dt) {
     
-    rotateOCS(Constants::VectorType::Y, 10.0f);    
-}
+//     rotateOCS(Constants::VectorType::Y, 10.0f);    
+// }
 
 
 void Dragon::draw(ShaderProgram * shaderProgram, glm::mat4 view, glm::mat4 projection) {

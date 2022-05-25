@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "constants/Maps.h"
+#include "../constants/Maps.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 glm::mat4 Camera::getProjectionMatrix(int width, int height) {
@@ -7,5 +7,5 @@ glm::mat4 Camera::getProjectionMatrix(int width, int height) {
 }
 
 glm::mat4 Camera::getViewMatrix() {
-    return glm::lookAt(_position, _position + _cameraFront, Constants::axisVectors.at(Constants::VectorType::Y));
+    return glm::lookAt(_position, _position + _cameraFront, Constants::axis_3[Constants::VectorType::Y]);
 }

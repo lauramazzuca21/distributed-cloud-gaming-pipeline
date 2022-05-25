@@ -1,5 +1,5 @@
-#ifndef _RENDER_H_
-#define _RENDER_H_
+#ifndef _RENDERER_H_
+#define _RENDERER_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,16 +17,16 @@
 
 #include "Dragon.h"
 
-class Render
+class Renderer
 {
     public:
     static const int	width = 1280;
     static const int	height = 720;
-    static const int	MAX_DRAGONS_PER_ROW = 10;
+    static const int	MAX_DRAGONS_PER_ROW = 10; //state stuff
     float aspect = width/height*1.0f;
     int nDraw = 1;
 
-    Render(bool useEGL = false) : _useEGL{useEGL} { 
+    Renderer(bool useEGL = false) : _useEGL{useEGL} { 
         if(_useEGL)
         {
             _ctxt = new ContextEGL();
@@ -34,26 +34,25 @@ class Render
         }
         init(); 
     }
-    ~Render() {
+    ~Renderer() {
         glDeleteRenderbuffers(1, &depth);
         glDeleteRenderbuffers(1, &color);
         glDeleteFramebuffers(1, &fb);
         if(_useEGL)
             _ctxt->terminate();
     }
-    const std::vector<uint8_t>& nextFrameAndGetPixels(double dt);
-    void nextFrame(double dt);
-    void update(double dt);
+    // const std::vector<uint8_t>& nextFrameAndGetPixels(double dt); 
+    void draw(double dt);
+    // void update(double dt);
 private:
 
     GLuint fb, color, depth;
-
-    std::vector<uint8_t> pixels = std::vector<uint8_t>(width * height * 4);
-
+ 
     ContextEGL* _ctxt;
     bool _useEGL = false;
     Light * light = new Light();
     Camera * camera = new Camera();
+    //this ugly shait shall become an array, vector, whatever of Models loaded when the state sends the info about them
     std::vector<Dragon *> dragons;
     std::vector<Dragon *> dragons_top;
     std::vector<Dragon *> dragons_bottom;
@@ -62,7 +61,9 @@ private:
     glm::mat4 Projection, View;
 
 
-    const std::vector<uint8_t>& getPixels();
+    std::vector<uint8_t> pixels = std::vector<uint8_t>(width * height * 4);
+    const std::vector<uint8_t>& getPixels(); //method to change so that it uses memsh
+
     void init();
     void initBuffers();
     

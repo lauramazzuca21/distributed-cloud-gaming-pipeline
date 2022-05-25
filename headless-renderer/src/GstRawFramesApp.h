@@ -4,7 +4,7 @@
 #include <glibmm/main.h>
 
 #include "../utils/gstLogUtils.h"
-#include "Render.h"
+#include "Renderer.h"
 
 class GstRawFramesApp {
 
@@ -17,7 +17,7 @@ struct _RawFramesApp {
 typedef std::shared_ptr<_RawFramesApp> RawFramesAppPtr;
 
 private:
-    Render* _render = new Render(true);
+    Renderer* _render = new Renderer(true);
     RawFramesAppPtr _streamApp;    
     Glib::RefPtr<Glib::MainLoop> _mainloopptr;
 

@@ -1,9 +1,9 @@
-#include "Render.h"
+#include "Renderer.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../extern/stb_image_write.h"
 
-const std::vector<uint8_t>& Render::getPixels() {
+const std::vector<uint8_t>& Renderer::getPixels() {
     // gl::log::debug::print("Reading pixels...");
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
@@ -19,7 +19,7 @@ const std::vector<uint8_t>& Render::getPixels() {
     return pixels;
 }
 
-void Render::initBuffers() {
+void Renderer::initBuffers() {
     //correct setup thanks to https://github.com/cirosantilli/cpp-cheat/blob/70b22ac36f92e93c94f951edb8b5af7947546525/opengl/offscreen.c
     gl::log::debug::print("\nFRAMEBUFFER...");
 //1. Generate framebuffer to hold rendering destination
@@ -47,7 +47,7 @@ void Render::initBuffers() {
     gl::log::errors::assertOpenGLError("glReadBuffer");
 }
 
-void Render::init() {
+void Renderer::init() {
     gl::log::debug::print("Init GLEW\n");
     glewInit();
 
@@ -56,6 +56,10 @@ void Render::init() {
         initBuffers();
         gl::log::debug::print("Done.\n");
     }
+
+    //here everything is mixed up between state and render stuff
+    //the render init is not the moment during which the Models should be loaded
+    //but instead should be loaded with a "loadModel(Model)" method
     gl::log::debug::print("Loading Dragons...");
     std::stringstream s;
     for(int i = 0; i < MAX_DRAGONS_PER_ROW; i++)
@@ -78,12 +82,13 @@ void Render::init() {
     {
         scale *= 1.05f;
         pos -= 50.0f;
-        dragons.at(i)->scaleOCS(glm::vec3(scale));
-        dragons.at(i)->translateOCS(glm::vec3(pos, 0.0f, -150.0f));
-        dragons_top.at(i)->scaleOCS(glm::vec3(scale));
-        dragons_top.at(i)->translateOCS(glm::vec3(pos, 150.0f, -150.0f));
-        dragons_bottom.at(i)->scaleOCS(glm::vec3(scale));
-        dragons_bottom.at(i)->translateOCS(glm::vec3(pos, -150.0f, -150.0f));
+        //moved into state/GameObject
+        // dragons.at(i)->scaleOCS(glm::vec3(scale));
+        // dragons.at(i)->translateOCS(glm::vec3(pos, 0.0f, -150.0f));
+        // dragons_top.at(i)->scaleOCS(glm::vec3(scale));
+        // dragons_top.at(i)->translateOCS(glm::vec3(pos, 150.0f, -150.0f));
+        // dragons_bottom.at(i)->scaleOCS(glm::vec3(scale));
+        // dragons_bottom.at(i)->translateOCS(glm::vec3(pos, -150.0f, -150.0f));
         if (loadedShaders.find(dragons[i]->getShaderType()) == loadedShaders.end()) {
             ShaderProgram * current = new ShaderProgram(dragons[i]->getShaderType());
             current->enable();
@@ -117,21 +122,17 @@ void Render::init() {
     gl::log::errors::checkFramebufferStatus();
 }
 
-const std::vector<uint8_t>& Render::nextFrameAndGetPixels(double dt) {
-    nextFrame(dt);
-    return getPixels();
-}
+// void Renderer::update(double dt) { //to be moved into state handler
+//     for (int i = 0; i < nDraw; i++)
+//     {
+//         dragons.at(i)->update(dt);
+//         dragons_top.at(i)->update(dt);        
+//         dragons_bottom.at(i)->update(dt);
+//     }
+// }
 
-void Render::update(double dt) {
-    for (int i = 0; i < nDraw; i++)
-    {
-        dragons.at(i)->update(dt);
-        dragons_top.at(i)->update(dt);        
-        dragons_bottom.at(i)->update(dt);
-    }
-}
-
-void Render::nextFrame(double dt) {
+void Renderer::draw(double dt) {
+//----more state stuff
     static double millisec = 0.0;
     millisec += dt;
 
@@ -140,11 +141,25 @@ void Render::nextFrame(double dt) {
         nDraw += 1;
         millisec = 0.0;
     }
-
+//--------------------
     Projection = camera->getProjectionMatrix(width, height);
 	View = camera->getViewMatrix();
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    //this draw implementation is obviously too case-specific, needs to change once the
+    //dragons become just a collection of Models in something like this
+    /*
+        for (Model& m : models)
+        {
+            ShaderProgram *currentShader = loadedShaders[m->getShaderType()];
+    
+            currentShader->enable();
+            currentShader->setUniformVector3("light_position_pointer", light->getPosition());
+
+            m->draw(currentShader, View, Projection);
+            currentShader->disable();
+        }
+    */
     for (int i = 0; i < nDraw; i++)
     {
         ShaderProgram * currentShader = loadedShaders[dragons.at(i)->getShaderType()];

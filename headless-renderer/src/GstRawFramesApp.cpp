@@ -5,12 +5,12 @@
 #endif
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) { 
-    _render->update(dt);
-    const std::vector<uint8_t>& frame = _render->nextFrameAndGetPixels(dt);
+    // _render->update(dt);
+    // const std::vector<uint8_t>& frame = _render->nextFrameAndGetPixels(dt);
 
-    Glib::RefPtr<Gst::Buffer> bufferptr = Gst::Buffer::create(frame.size());
+    Glib::RefPtr<Gst::Buffer> bufferptr = Gst::Buffer::create(0);
 
-    bufferptr->fill(0, frame.data(), frame.size());
+    // bufferptr->fill(0, frame.data(), frame.size());
 
     return bufferptr; 
 }
