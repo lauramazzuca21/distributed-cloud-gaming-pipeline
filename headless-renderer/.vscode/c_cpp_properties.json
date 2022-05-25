@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/lib/**",
-                "/usr/include/**"
+                "/usr/include/**",
+                "/usr/include/gstreamermm-1.0/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

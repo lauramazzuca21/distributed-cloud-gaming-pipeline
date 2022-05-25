@@ -30,7 +30,7 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     if (time >= 1.0f) //one second elapsed
     {
         _baseTime = currentTime;
-        g_print("FPS count: %d\n", frames);
+        // g_print("FPS count: %d\n", frames);
         frames = 0;
     }
 
