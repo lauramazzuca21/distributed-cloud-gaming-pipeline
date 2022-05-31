@@ -46,6 +46,6 @@ EXPOSE 5000/udp
 RUN cmake . && make
 
 # This command runs your application, comment out this line to compile only
-CMD ["./main"]
+CMD ["GST_DEBUG=GST_TRACER:7 GST_TRACERS=latency(flags=pipeline+element+reported) ./main"]
 
 LABEL Name=headlessrenderer Version=0.0.1

@@ -35,33 +35,31 @@ class Renderer
         init(); 
     }
     ~Renderer() {
-        glDeleteRenderbuffers(1, &depth);
-        glDeleteRenderbuffers(1, &color);
-        glDeleteFramebuffers(1, &fb);
+        glDeleteRenderbuffers(1, &_depth);
+        glDeleteRenderbuffers(1, &_color);
+        glDeleteFramebuffers(1, &_fb);
+        
         if(_useEGL)
             _ctxt->terminate();
     }
-    // const std::vector<uint8_t>& nextFrameAndGetPixels(double dt); 
+    const std::vector<uint8_t>& nextFrameBuffer(double dt); 
     void draw(double dt);
-    // void update(double dt);
+    void addModel(Model *model);
 private:
 
-    GLuint fb, color, depth;
+    GLuint _fb, _color, _depth;
  
-    ContextEGL* _ctxt;
+    ContextEGL *_ctxt;
     bool _useEGL = false;
-    Light * light = new Light();
-    Camera * camera = new Camera();
-    //this ugly shait shall become an array, vector, whatever of Models loaded when the state sends the info about them
-    std::vector<Dragon *> dragons;
-    std::vector<Dragon *> dragons_top;
-    std::vector<Dragon *> dragons_bottom;
-    std::map<Constants::ShadingType, ShaderProgram *> loadedShaders = {};
+    Light *_light = new Light();
+    Camera *_camera = new Camera();
+    std::vector<Model *> _models;
+    std::map<Constants::ShadingType, ShaderProgram *> _loadedShaders = {};
 
-    glm::mat4 Projection, View;
+    glm::mat4 _projection, _view;
 
 
-    std::vector<uint8_t> pixels = std::vector<uint8_t>(width * height * 4);
+    std::vector<uint8_t> _pixels = std::vector<uint8_t>(width * height * 4);
     const std::vector<uint8_t>& getPixels(); //method to change so that it uses memsh
 
     void init();

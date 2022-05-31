@@ -6,11 +6,11 @@
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) { 
     // _render->update(dt);
-    // const std::vector<uint8_t>& frame = _render->nextFrameAndGetPixels(dt);
+    const std::vector<uint8_t>& frame = _render->nextFrameBuffer(dt);
 
     Glib::RefPtr<Gst::Buffer> bufferptr = Gst::Buffer::create(0);
 
-    // bufferptr->fill(0, frame.data(), frame.size());
+    bufferptr->fill(0, frame.data(), frame.size());
 
     return bufferptr; 
 }
@@ -25,14 +25,14 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     
     Gst::ClockTime currentTime = _clock->get_time();
 
-    float time = (currentTime - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
+    // float time = (currentTime - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
     
-    if (time >= 1.0f) //one second elapsed
-    {
-        _baseTime = currentTime;
-        // g_print("FPS count: %d\n", frames);
-        frames = 0;
-    }
+    // if (time >= 1.0f) //one second elapsed
+    // {
+    //     _baseTime = currentTime;
+    //     // g_print("FPS count: %d\n", frames);
+    //     frames = 0;
+    // }
 
     if (!app->getStreamApp()->sourceid) {
         return false;
@@ -55,7 +55,10 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     std::stringstream str;
-    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=60/1 ! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA ! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
+    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=60/1 " 
+    //"! shmsink socket-path=/dev/shm/test shm-size=2000000";
+    "! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA "
+    "! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
 
     _streamApp = std::make_shared<_RawFramesApp>();
     Glib::RefPtr<Gst::Element> pipeline;
@@ -103,11 +106,10 @@ gboolean GstRawFramesApp::busCallback(const Glib::RefPtr<Gst::Bus>& bus, const G
 
     switch(message->get_message_type()){
 
-    case GST_MESSAGE_ERROR: {
+    case GST_MESSAGE_ERROR: 
         g_print("Error %s\n", message->get_structure().to_string().c_str());
         _mainloopptr->quit();
-    }
-    break;
+        break;
 
     case GST_MESSAGE_EOS:
         g_print("End of stream\n");
