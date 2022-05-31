@@ -74,7 +74,7 @@ docker pull lauramazzuca/webrtc-streamer:latest
 
 Then run it with host network configuration with
 ```bash
-sudo docker run --rm --network host -dit webrtc-streamer:1
+sudo docker run --rm --network host -dit webrtc-streamer:latest
 ```
 
 # Installing the Headless Renderer
@@ -128,5 +128,5 @@ docker pull lauramazzuca/headless-renderer:latest
 
 Then run it with host network configuration with
 ```bash
-sudo docker run --rm --network host -dit headless-renderer:1
+sudo docker run --rm --network host -dit headless-renderer:latest
 ```
