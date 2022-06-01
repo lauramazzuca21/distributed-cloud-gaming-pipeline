@@ -200,11 +200,15 @@ create_receiver_entry (SoupWebsocketConnection * connection)
   receiver_entry->pipeline =
       gst_parse_launch ("webrtcbin name=webrtcbin stun-server=stun://"
       STUN_SERVER " turn-server=turn://webrtc:webrtc@" TURN_SERVER_TCP " "
-      "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)" WIDTH ", height=(string)" HEIGHT ", colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
-      "! rtpvrawdepay ! rawvideoparse width=" WIDTH " height=" HEIGHT " format=11 !" //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
-      " videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 ! x264enc bitrate=1800 key-int-max=150 frame-packing=checkerboard speed-preset=faster tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse ! "
-      "rtph264pay name=payloader aggregate-mode=zero-latency ! "
-      "application/x-rtp,media=video,encoding-name=H264,profile-level-id=42c01f,payload="
+      //"udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)" WIDTH ", height=(string)" HEIGHT ", colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
+      //"! rtpvrawdepay "
+      "shmsrc socket-path=/dev/shm/test "
+      "! rawvideoparse width=" WIDTH " height=" HEIGHT " format=11 " //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
+      "! videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 "
+      "! x264enc bitrate=1800 key-int-max=150 frame-packing=checkerboard speed-preset=faster tune=zerolatency sliced-threads=true threads=4 "
+      "! video/x-h264,profile=constrained-baseline ! queue max-size-time=100000000 ! h264parse "
+      "! rtph264pay name=payloader aggregate-mode=zero-latency "
+      "! application/x-rtp,media=video,encoding-name=H264,profile-level-id=42c01f,payload="
       RTP_PAYLOAD_TYPE " ! webrtcbin. ", &error);
   if (error != NULL) {
     g_error ("Could not create WebRTC streaming pipeline: %s\n", error->message);
@@ -220,7 +224,7 @@ create_receiver_entry (SoupWebsocketConnection * connection)
       &transceivers);
   g_assert (transceivers != NULL && transceivers->len > 0);
   trans = g_array_index (transceivers, GstWebRTCRTPTransceiver *, 0);
-  trans->direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY;
+//    trans->direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY; //why tf this struct is not accessible?
   g_array_unref (transceivers);
 
   g_signal_connect (receiver_entry->webrtcbin, "on-negotiation-needed",
@@ -592,8 +596,7 @@ main (int argc, char *argv[])
   g_unix_signal_add (SIGTERM, exit_sighandler, mainloop);
 #endif
 
-  soup_server =
-      soup_server_new (SOUP_SERVER_SERVER_HEADER, "webrtc-soup-server", NULL);
+  soup_server = soup_server_new (SOUP_SERVER_SERVER_HEADER, "webrtc-soup-server", NULL);
   soup_server_add_handler (soup_server, "/", soup_http_handler, NULL, NULL);
   soup_server_add_websocket_handler (soup_server, "/ws", NULL, NULL,
       soup_websocket_handler, (gpointer) receiver_entry_table, NULL);
