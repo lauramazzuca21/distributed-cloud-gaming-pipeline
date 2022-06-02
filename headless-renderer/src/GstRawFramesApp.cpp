@@ -1,8 +1,11 @@
 #include "GstRawFramesApp.h"
+
 #include <sstream>
 #ifdef G_OS_UNIX
 #include <glib-unix.h>
 #endif
+
+#include "../utils/FileHandler.h"
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) { 
     _render->update(dt);
@@ -18,29 +21,34 @@ Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) {
 gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 
     gboolean result = false;
-    static int frames = 0;
+    static uint64_t frames = 0;
     static Glib::RefPtr<Gst::Clock> _clock = Gst::SystemClock::obtain();
     static Gst::ClockTime _baseTime = _clock->get_time();
     static Gst::ClockTime _previousTime = _clock->get_time();
     
     Gst::ClockTime currentTime = _clock->get_time();
 
-    float time = (currentTime - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
+    // float time = (currentTime - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
     
-    if (time >= 1.0f) //one second elapsed
-    {
-        _baseTime = currentTime;
-        g_print("FPS count: %d\n", frames);
-        frames = 0;
-    }
+    // if (time >= 1.0f) //one second elapsed
+    // {
+    //     _baseTime = currentTime;
+    //     g_print("FPS count: %d\n", frames);
+    //     frames = 0;
+    // }
 
     if (!app->getStreamApp()->sourceid) {
         return false;
     }
     double dt = (currentTime-_previousTime)/1000000.0; //dt in milliseconds
-    _previousTime = currentTime;
-    Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(app->nextFrameBuffer(dt)); 
+    auto buffer = app->nextFrameBuffer(dt);
+    // buffer->set_pts(currentTime); //this method can set a custom timestamp
+    Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(buffer); 
+
+    app->_logMetrics.push_back(Constants::Metric{currentTime, frames});
+
     frames++;
+    _previousTime = currentTime;
 
     if (ret != Gst::FlowReturn::FLOW_OK)
     {
@@ -55,8 +63,10 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     std::stringstream str;
-    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=60/1 ! shmsink socket-path=/dev/shm/test wait-for-connection=true shm-size=30000000";
-    //" videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA ! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
+    str << "appsrc name=rawsrc is-live=true format=GST_FORMAT_TIME caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=60/1 "
+    "! shmsink socket-path=/dev/shm/test wait-for-connection=true shm-size=30000000";
+    //"! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA "
+    //"! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
 
     _streamApp = std::make_shared<_RawFramesApp>();
     Glib::RefPtr<Gst::Element> pipeline;
@@ -80,9 +90,6 @@ gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     return true;
 }
-
-/*In the need-data callback, we add our pushData function as an idle handler to the main loop. The glib main loop will call this 
-* function from its main loop. When appsrc emits enough-data signal, we just remove this idle handler so that it is not called anymore. */
 
 void GstRawFramesApp::enableStream(guint, RawFramesAppPtr app) {
     
@@ -139,7 +146,7 @@ void GstRawFramesApp::run(int argc, char *argv[]) {
     gst::log::printGstreamerVersion();
 
     _mainloopptr = Glib::MainLoop::create();
-
+    _logMetrics.reserve(500000);
     if(createPipeline(_render->width, _render->height)) {
 
         #ifdef G_OS_UNIX
@@ -155,6 +162,8 @@ void GstRawFramesApp::run(int argc, char *argv[]) {
             // Clean up nicely:
         std::cout << "Returned. Stopping playback." << std::endl;
         _streamApp->pipe->set_state(Gst::STATE_NULL);
+        file_handler::save_vector_as_csv<Constants::Metric>("results", _logMetrics);
+
     }
     else {
         std::cout << "Couldn't create pipeline." << std::endl;

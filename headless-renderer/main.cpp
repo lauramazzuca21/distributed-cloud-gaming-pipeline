@@ -4,10 +4,10 @@
 
 int main(int argc, char *argv[])
 {
-    GstRawFramesApp* app = new GstRawFramesApp();
+    GstRawFramesApp app;
     // RawFramesApp* app = new RawFramesApp();
 
-    app->run(argc, argv);
+    app.run(argc, argv);
     
     return 0;
 }

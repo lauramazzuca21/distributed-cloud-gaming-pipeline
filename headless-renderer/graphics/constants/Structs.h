@@ -5,11 +5,23 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
- #include "Enums.h"
+#include "Enums.h"
 
 namespace Constants {
     
-      struct Material {
+    struct Metric { 
+        uint64_t timestamp; 
+        uint64_t frame_num; 
+
+        std::string to_csv()
+        {
+            std::stringstream s;
+            s << timestamp << "," << frame_num;
+            return s.str();
+        }
+    };
+
+    struct Material {
         std::string name;
         glm::vec3 ambient;
         glm::vec3 diffuse;
