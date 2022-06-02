@@ -26,32 +26,22 @@ class Render
     float aspect = width/height*1.0f;
     int nDraw = 1;
 
-    Render(bool useEGL = false) : _useEGL{useEGL} { 
-        if(_useEGL)
-        {
-            _ctxt = new ContextEGL();
-            _ctxt->init();
-        }
-        init(); 
-    }
     ~Render() {
         glDeleteRenderbuffers(1, &depth);
         glDeleteRenderbuffers(1, &color);
         glDeleteFramebuffers(1, &fb);
-        if(_useEGL)
-            _ctxt->terminate();
     }
+    void init(bool isUsingEGLContext);
+    void update(double dt);
+
     const std::vector<uint8_t>& nextFrameAndGetPixels(double dt);
     void nextFrame(double dt);
-    void update(double dt);
 private:
 
     GLuint fb, color, depth;
 
     std::vector<uint8_t> pixels = std::vector<uint8_t>(width * height * 4);
 
-    ContextEGL* _ctxt;
-    bool _useEGL = false;
     Light * light = new Light();
     Camera * camera = new Camera();
     std::vector<Dragon *> dragons;
@@ -63,7 +53,6 @@ private:
 
 
     const std::vector<uint8_t>& getPixels();
-    void init();
     void initBuffers();
     
 

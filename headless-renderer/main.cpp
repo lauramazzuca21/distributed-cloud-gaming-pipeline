@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     GstRawFramesApp app;
-    // RawFramesApp* app = new RawFramesApp();
+    // RawFramesApp app;
 
     app.run(argc, argv);
     

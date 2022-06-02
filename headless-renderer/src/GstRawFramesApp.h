@@ -17,7 +17,8 @@ struct _RawFramesApp {
 typedef std::shared_ptr<_RawFramesApp> RawFramesAppPtr;
 
 private:
-    Render* _render = new Render(true);
+    Render _render;
+    ContextEGL _ctxt;
     RawFramesAppPtr _streamApp;    
     Glib::RefPtr<Glib::MainLoop> _mainloopptr;
 

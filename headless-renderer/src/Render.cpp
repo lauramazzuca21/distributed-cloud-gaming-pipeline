@@ -47,11 +47,11 @@ void Render::initBuffers() {
     gl::log::errors::assertOpenGLError("glReadBuffer");
 }
 
-void Render::init() {
+void Render::init(bool isUsingEGLContext) {
     gl::log::debug::print("Init GLEW\n");
     glewInit();
 
-    if (_useEGL) {
+    if (isUsingEGLContext) {
         gl::log::debug::print("Init buffers...");
         initBuffers();
         gl::log::debug::print("Done.\n");

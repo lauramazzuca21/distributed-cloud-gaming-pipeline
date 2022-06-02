@@ -20,10 +20,14 @@ private:
 
     EGLBoolean platformSpecificEGLdisplay(EGLDisplay * eglDpy, EGLint * numConfigs, EGLConfig * eglCfg, EGLint * major, EGLint  * minor);
 
-
-public:
     void init();
     void terminate();
+
+public:
+    ContextEGL() {init();}
+    ~ContextEGL(){terminate();}
+
+
 };
 
 #endif

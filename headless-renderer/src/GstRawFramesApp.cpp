@@ -8,8 +8,8 @@
 #include "../utils/FileHandler.h"
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) { 
-    _render->update(dt);
-    const std::vector<uint8_t>& frame = _render->nextFrameAndGetPixels(dt);
+    _render.update(dt);
+    const std::vector<uint8_t>& frame = _render.nextFrameAndGetPixels(dt);
 
     Glib::RefPtr<Gst::Buffer> bufferptr = Gst::Buffer::create(frame.size());
 
@@ -146,8 +146,9 @@ void GstRawFramesApp::run(int argc, char *argv[]) {
     gst::log::printGstreamerVersion();
 
     _mainloopptr = Glib::MainLoop::create();
+    _render.init(true); //true tells render that it's running an EGL context
     _logMetrics.reserve(500000);
-    if(createPipeline(_render->width, _render->height)) {
+    if(createPipeline(_render.width, _render.height)) {
 
         #ifdef G_OS_UNIX
         g_unix_signal_add (SIGINT, GstRawFramesApp::exit_sighandler, _mainloopptr->gobj());
@@ -163,10 +164,8 @@ void GstRawFramesApp::run(int argc, char *argv[]) {
         std::cout << "Returned. Stopping playback." << std::endl;
         _streamApp->pipe->set_state(Gst::STATE_NULL);
         file_handler::save_vector_as_csv<Constants::Metric>("results", _logMetrics);
-
     }
     else {
         std::cout << "Couldn't create pipeline." << std::endl;
     }
-
 }
