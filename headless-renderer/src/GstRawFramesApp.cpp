@@ -44,7 +44,10 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     }
     double dt = (currentTime-_previousTime)/1000000.0; //dt in milliseconds
     auto buffer = app->nextFrameBuffer(dt);
-    app->_logMetrics.push_back(Constants::Metric{(uint64_t) time(NULL), frame});
+    struct timespec spec;
+    clock_gettime(CLOCK_REALTIME, &spec);
+
+    app->_logMetrics.push_back(Constants::Metric{(uint64_t) spec.tv_sec*1000000000 + spec.tv_nsec, frame});
     
     Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(buffer); 
 

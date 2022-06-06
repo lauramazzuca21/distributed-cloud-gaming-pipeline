@@ -368,9 +368,10 @@ in_log_metrics_cb (GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
     buffer = GST_PAD_PROBE_INFO_BUFFER (info);
 
     static u_int64_t frame = 0;
-
+    struct timespec spec;
+    clock_gettime(CLOCK_REALTIME, &spec);
     in_logMetrics[in_registered_metrics].frame_num = frame;
-    in_logMetrics[in_registered_metrics].timestamp = time(NULL);
+    in_logMetrics[in_registered_metrics].timestamp = spec.tv_sec*1000000000 + spec.tv_nsec;
     ++in_registered_metrics;
     ++frame;
 
@@ -380,8 +381,8 @@ in_log_metrics_cb (GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
 static gboolean on_webrtcbin_stat (GQuark field_id, const GValue * value, gpointer unused)
 {
   if (GST_VALUE_HOLDS_STRUCTURE (value)) {
-      gst_println("stat: \'%s\': %" GST_PTR_FORMAT, g_quark_to_string (field_id),
-        gst_value_get_structure (value));
+    //   gst_println("stat: \'%s\': %" GST_PTR_FORMAT, g_quark_to_string (field_id),
+    //     gst_value_get_structure (value));
     // GST_WARNING("stat: \'%s\': %" GST_PTR_FORMAT, g_quark_to_string (field_id),
     //     gst_value_get_structure (value));
   } else {
