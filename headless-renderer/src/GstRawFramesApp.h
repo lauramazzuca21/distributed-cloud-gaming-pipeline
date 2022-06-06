@@ -32,6 +32,7 @@ private:
     gboolean busCallback(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
     /*this is the core of the App, it's the funciton that gets called by the loop to push data on the pipeline through the appsrc*/
     static gboolean pushData(GstRawFramesApp * app);
+    Gst::PadProbeReturn onSinkBuffer(const Glib::RefPtr<Gst::Pad>& pad, const Gst::PadProbeInfo& padProbeInfo);
     #ifdef G_OS_UNIX
     static gboolean exit_sighandler (gpointer user_data);
     #endif

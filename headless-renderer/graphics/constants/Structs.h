@@ -16,7 +16,7 @@ namespace Constants {
         std::string to_csv()
         {
             std::stringstream s;
-            s << timestamp << "," << frame_num;
+            s << frame_num << "," << timestamp;
             return s.str();
         }
     };

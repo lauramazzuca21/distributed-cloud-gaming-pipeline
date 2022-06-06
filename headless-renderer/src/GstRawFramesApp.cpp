@@ -5,6 +5,8 @@
 #include <glib-unix.h>
 #endif
 
+#include <ctime>
+
 #include "../utils/FileHandler.h"
 
 Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) { 
@@ -21,20 +23,20 @@ Glib::RefPtr<Gst::Buffer> GstRawFramesApp::nextFrameBuffer(double dt) {
 gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 
     gboolean result = false;
-    static uint64_t frames = 0;
+    static uint64_t frame = 0;
     static Glib::RefPtr<Gst::Clock> _clock = Gst::SystemClock::obtain();
     static Gst::ClockTime _baseTime = _clock->get_time();
     static Gst::ClockTime _previousTime = _clock->get_time();
     
     Gst::ClockTime currentTime = _clock->get_time();
 
-    // float time = (currentTime - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
+    // float elapsedTime = (currentTime - _baseTime)/1000000000.0f; //Gst::ClockTime is measured in nanosecods
     
-    // if (time >= 1.0f) //one second elapsed
+    // if (elapsedTime >= 1.0f) //one second elapsed
     // {
     //     _baseTime = currentTime;
-    //     g_print("FPS count: %d\n", frames);
-    //     frames = 0;
+    //     g_print("FPS count: %ld\n", frame);
+    //     frame = 0;
     // }
 
     if (!app->getStreamApp()->sourceid) {
@@ -42,12 +44,12 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     }
     double dt = (currentTime-_previousTime)/1000000.0; //dt in milliseconds
     auto buffer = app->nextFrameBuffer(dt);
-    // buffer->set_pts(currentTime); //this method can set a custom timestamp
+    app->_logMetrics.push_back(Constants::Metric{(uint64_t) time(NULL), frame});
+    
     Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(buffer); 
 
-    app->_logMetrics.push_back(Constants::Metric{currentTime, frames});
 
-    frames++;
+    frame++;
     _previousTime = currentTime;
 
     if (ret != Gst::FlowReturn::FLOW_OK)
@@ -60,11 +62,25 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     return result;
 }
 
+Gst::PadProbeReturn GstRawFramesApp::onSinkBuffer(const Glib::RefPtr<Gst::Pad>& pad, const Gst::PadProbeInfo& padProbeInfo)
+{
+    int fps = 60;
+    static int ptimestamp = 0;
+    padProbeInfo.get_buffer()->set_pts(ptimestamp); 
+    padProbeInfo.get_buffer()->set_dts(ptimestamp); 
+    padProbeInfo.get_buffer()->set_duration(gst_util_uint64_scale_int (1, GST_SECOND, fps));
+    // gst_println("pts set to: %ld", padProbeInfo.get_buffer()->get_pts());
+    ptimestamp += gst_util_uint64_scale_int (1, GST_SECOND, fps);
+
+    // _logMetrics.push_back(Constants::Metric{padProbeInfo.get_buffer()->get_pts(), 0});
+    return Gst::PadProbeReturn::PAD_PROBE_OK;
+}
+
 gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     std::stringstream str;
-    str << "appsrc name=rawsrc is-live=true format=GST_FORMAT_TIME caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=60/1 "
-    "! shmsink socket-path=/dev/shm/test wait-for-connection=true shm-size=30000000";
+    str << "appsrc name=rawsrc is-live=true do-timestamp=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=(fraction)60/1 " //format=GST_FORMAT_TIME
+    "! shmsink name=shmsink socket-path=/dev/shm/test wait-for-connection=true shm-size=30000000 ";
     //"! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA "
     //"! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
 
@@ -81,6 +97,18 @@ gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     Glib::RefPtr<Gst::Bus> bus = _streamApp->pipe->get_bus();
     bus->add_watch((Gst::Bus::SlotMessage) sigc::mem_fun(this, &GstRawFramesApp::busCallback));
+
+    Glib::RefPtr<Gst::Element> shmsink =_streamApp->pipe->get_element("shmsink");
+    if (!shmsink)
+        return false;
+    
+    Gst::Iterator<Gst::Pad> it = shmsink->iterate_pads();
+    it.begin();
+    Glib::RefPtr<Gst::Pad> pad = *it;
+    if (!pad)
+        return false;
+    
+    pad->add_probe(Gst::PadProbeType::PAD_PROBE_TYPE_BUFFER, (Gst::Pad::SlotProbe) sigc::mem_fun(this, &GstRawFramesApp::onSinkBuffer) );
 
     _streamApp->appsrc = Glib::RefPtr<Gst::AppSrc>::cast_dynamic(_streamApp->pipe->get_element("rawsrc")); 
     _streamApp->appsrc->set_do_timestamp(true);

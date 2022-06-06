@@ -33,7 +33,7 @@ template<typename S>
     // static void save_jpeg_from_buffer(const char * filename, 
     //                                     const int width, const int height, 
     //                                     unsigned char * buffer) {
-    //     FILE *outfile = fopen(filename, "wb"); //write binary file
+        // FILE *outfile = fopen(filename, "wb"); //write binary file
     //     if (!outfile)
     //         return;
         
@@ -42,7 +42,7 @@ template<typename S>
 
     //     cinfo.err = jpeg_std_error(&jerr);
     //     jpeg_create_compress(&cinfo);
-    //     jpeg_stdio_dest(&cinfo, outfile);
+        // jpeg_stdio_dest(&cinfo, outfile);
 
     //     cinfo.image_width      = width;
     //     cinfo.image_height     = height;
