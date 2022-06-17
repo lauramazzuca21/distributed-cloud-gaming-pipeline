@@ -284,7 +284,8 @@ create_receiver_entry (SoupWebsocketConnection * connection)
         STUN_SERVER " turn-server=turn://webrtc:webrtc@" TURN_SERVER_TCP " "
         //"udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)" WIDTH ", height=(string)" HEIGHT ", colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
         //"! rtpvrawdepay "
-        "shmsrc name=shmsrc socket-path=/dev/shm/test do-timestamp=true "
+        "shmsrc name=shmsrc socket-path=/dev/shm/test "
+        // "! timeoverlayparse "
         "! rawvideoparse width=" WIDTH " height=" HEIGHT " format=11 " 
         //"! rtpjitterbuffer faststart-min-packets=2048 latency=2048 " 
         "! videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 "
@@ -367,7 +368,7 @@ in_log_metrics_cb (GstPad *pad, GstPadProbeInfo *info, gpointer user_data)
     GstBuffer *buffer;
     buffer = GST_PAD_PROBE_INFO_BUFFER (info);
 
-    static u_int64_t frame = 0;
+    u_int64_t frame = GST_BUFFER_PTS(buffer);
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     in_logMetrics[in_registered_metrics].frame_num = frame;

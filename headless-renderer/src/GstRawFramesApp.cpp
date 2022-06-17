@@ -47,7 +47,14 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
 
-    app->_logMetrics.push_back(Constants::Metric{(uint64_t) spec.tv_sec*1000000000 + spec.tv_nsec, frame});
+    int fps = 60;
+    static guint64 ptimestamp = 0;
+    buffer->set_pts(ptimestamp); 
+    buffer->set_dts(ptimestamp); 
+    buffer->set_duration(gst_util_uint64_scale_int (1, GST_SECOND, fps));
+    // gst_println("pts set to: %ld", buffer->get_pts());
+    ptimestamp += gst_util_uint64_scale_int (1, GST_SECOND, fps);
+    app->_logMetrics.push_back(Constants::Metric{(uint64_t) spec.tv_sec*1000000000 + spec.tv_nsec, ptimestamp});
     
     Gst::FlowReturn ret = app->getStreamApp()->appsrc->push_buffer(buffer); 
 
@@ -67,22 +74,18 @@ gboolean GstRawFramesApp::pushData(GstRawFramesApp * app) {
 
 Gst::PadProbeReturn GstRawFramesApp::onSinkBuffer(const Glib::RefPtr<Gst::Pad>& pad, const Gst::PadProbeInfo& padProbeInfo)
 {
-    int fps = 60;
-    static int ptimestamp = 0;
-    padProbeInfo.get_buffer()->set_pts(ptimestamp); 
-    padProbeInfo.get_buffer()->set_dts(ptimestamp); 
-    padProbeInfo.get_buffer()->set_duration(gst_util_uint64_scale_int (1, GST_SECOND, fps));
-    // gst_println("pts set to: %ld", padProbeInfo.get_buffer()->get_pts());
-    ptimestamp += gst_util_uint64_scale_int (1, GST_SECOND, fps);
+    guint64 ptimestamp = padProbeInfo.get_buffer()->get_pts(); 
+    // gst_println("pts set to: %ld", ptimestamp);
 
-    // _logMetrics.push_back(Constants::Metric{padProbeInfo.get_buffer()->get_pts(), 0});
     return Gst::PadProbeReturn::PAD_PROBE_OK;
 }
 
 gboolean GstRawFramesApp::createPipeline(int width, int height) {
 
     std::stringstream str;
-    str << "appsrc name=rawsrc is-live=true do-timestamp=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=(fraction)60/1 " //format=GST_FORMAT_TIME
+    str << "appsrc name=rawsrc is-live=true caps=video/x-raw,format=RGBA,width=" << width << ",height=" << height << ",framerate=(fraction)60/1 " //
+    // "! timestampoverlay "
+    // "! queue "
     "! shmsink name=shmsink socket-path=/dev/shm/test wait-for-connection=true shm-size=30000000 ";
     //"! videoconvert ! rawvideoparse width=" << width << " height=" << height << " format=11 ! queue ! video/x-raw, format=RGBA "
     //"! rtpvrawpay chunks-per-frame=2048 ! udpsink name=sink host=127.0.0.1 port=5000";
@@ -114,7 +117,8 @@ gboolean GstRawFramesApp::createPipeline(int width, int height) {
     pad->add_probe(Gst::PadProbeType::PAD_PROBE_TYPE_BUFFER, (Gst::Pad::SlotProbe) sigc::mem_fun(this, &GstRawFramesApp::onSinkBuffer) );
 
     _streamApp->appsrc = Glib::RefPtr<Gst::AppSrc>::cast_dynamic(_streamApp->pipe->get_element("rawsrc")); 
-    _streamApp->appsrc->set_do_timestamp(true);
+    _streamApp->appsrc->set_do_timestamp(false);
+    _streamApp->appsrc->property_format() = Gst::Format::FORMAT_TIME;
     _streamApp->appsrc->property_emit_signals() = true;
     _streamApp->appsrc->signal_need_data().connect(sigc::bind(sigc::mem_fun(this, &GstRawFramesApp::enableStream), _streamApp));
     _streamApp->appsrc->signal_enough_data().connect(sigc::bind(sigc::mem_fun(this, &GstRawFramesApp::disableStream), _streamApp));
