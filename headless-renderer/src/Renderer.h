@@ -1,5 +1,4 @@
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
+#pragma once
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -58,7 +57,6 @@ private:
 
     glm::mat4 _projection, _view;
 
-
     std::vector<uint8_t> _pixels = std::vector<uint8_t>(width * height * 4);
     const std::vector<uint8_t>& getPixels(); //method to change so that it uses memsh
 
@@ -67,5 +65,3 @@ private:
     
 
 };
-
-#endif

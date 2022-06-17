@@ -1,5 +1,4 @@
-#ifndef _FILE_HANDLER_H_
-#define _FILE_HANDLER_H_
+#pragma once
 
 
 #include <stdio.h>
@@ -116,5 +115,3 @@ enum C_TYPE {
         }
     }
 }
-
-#endif

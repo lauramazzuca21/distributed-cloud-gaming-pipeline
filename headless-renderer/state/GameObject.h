@@ -1,6 +1,4 @@
-#ifndef _GAME_OBJECT_H_
-#define _GAME_OBJECT_H_
-
+#pragma once
 #include <stdlib.h>
 #include <string>
 #include <glm/glm.hpp>
@@ -33,5 +31,3 @@ public:
     void scaleWCS(glm::vec3 scale_factor);
     void translateWCS(glm::vec3 translation_vector);
 };
-
-#endif

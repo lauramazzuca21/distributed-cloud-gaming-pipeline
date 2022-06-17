@@ -1,5 +1,4 @@
-#ifndef __GST_RAW_FRAMES_APP_H__
-#define __GST_RAW_FRAMES_APP_H__
+#pragma once
 
 #include <glibmm/main.h>
 
@@ -17,7 +16,7 @@ struct _RawFramesApp {
 typedef std::shared_ptr<_RawFramesApp> RawFramesAppPtr;
 
 private:
-    Renderer* _render = new Renderer(true);
+    Renderer* _render;
     RawFramesAppPtr _streamApp;    
     Glib::RefPtr<Glib::MainLoop> _mainloopptr;
 
@@ -44,5 +43,3 @@ public:
     }
 
 };
-
-#endif

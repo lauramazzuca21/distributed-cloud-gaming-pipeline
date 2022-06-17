@@ -1,6 +1,4 @@
-#ifndef _GST_LOG_UTILS_H_
-#define _GST_LOG_UTILS_H_
-
+#pragma once
 #include <gstreamermm.h>
 #include <iostream>
 #define DEBUG
@@ -42,4 +40,3 @@ namespace gst {
         }
     }
 }
-#endif

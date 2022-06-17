@@ -2,6 +2,10 @@
 
 int main(int argc, char const *argv[])
 {
+    /*init socket connection*/
+    /*receive input*/
+    /*send updated state*/
+    
     GameLoop gameLoop;
     
     /* Start game loop */

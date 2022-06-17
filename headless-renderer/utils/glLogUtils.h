@@ -1,5 +1,4 @@
-#ifndef _GL_LOG_UTILS_H_
-#define _GL_LOG_UTILS_H_
+#pragma once
 
 #include <sstream>
 #include <stdexcept>
@@ -154,5 +153,3 @@ namespace gl {
     }
 
 }
-
-#endif		//_LOG_UTILS_H_

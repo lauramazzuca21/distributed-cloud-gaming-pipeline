@@ -1,14 +1,13 @@
-#ifndef __RAW_FRAMES_APP_H__
-#define __RAW_FRAMES_APP_H__
+#pragma once
 
-#include "Render.h"
+#include "Renderer.h"
 // #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 
 class RawFramesApp {
 
 private:
-    Render* _render;
+    Renderer* _render;
     GLFWwindow* _window;
 
     static void exit_sighandler (int signum);
@@ -23,5 +22,3 @@ public:
     }
 
 };
-
-#endif

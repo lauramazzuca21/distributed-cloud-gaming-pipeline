@@ -136,6 +136,9 @@ GstRawFramesApp::exit_sighandler (gpointer user_data)
 #endif
 
 void GstRawFramesApp::run(int argc, char *argv[]) {
+    
+    _render = new Renderer(true);
+    
     Gst::init(argc, argv);
     gst::log::printGstreamerVersion();
 

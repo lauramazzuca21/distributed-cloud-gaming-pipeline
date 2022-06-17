@@ -1,5 +1,4 @@
-#ifndef _MAPS_H_
-#define _MAPS_H_
+#pragma once
 
 #include <map>
 #include <string>
@@ -19,5 +18,3 @@ namespace Constants {
 
     static const glm::vec3 axis_3[3]{X_AXIS_3, Y_AXIS_3, Z_AXIS_3};
 }
-
-#endif

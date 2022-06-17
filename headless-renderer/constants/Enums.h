@@ -1,7 +1,4 @@
-#ifndef _ENUMS_H_
-#define _ENUMS_H_
-
-
+#pragma once
 namespace Constants {
     enum ShadingType {
         GOURAUD,
@@ -26,6 +23,17 @@ namespace Constants {
         Y,
         Z
     };
-}
 
-#endif
+    enum MouseKey {
+        LEFT,
+        RIGHT,
+        WHEEL
+    };
+
+    enum KeyboardKey {
+        W,
+        A,
+        S,
+        D
+    };
+}

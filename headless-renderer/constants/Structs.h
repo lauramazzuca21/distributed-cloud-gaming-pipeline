@@ -1,6 +1,4 @@
-#ifndef _STRUCTS_H_
-#define _STRUCTS_H_
-
+#pragma once
 #include <string>
 
 #include <GL/glew.h>
@@ -8,6 +6,15 @@
  #include "Enums.h"
 
 namespace Constants {
+
+    struct Input {
+        float mouse_x;
+        float mouse_y;
+        Constants::MouseKey m_key_pressed;
+        Constants::MouseKey m_key_released;
+        Constants::KeyboardKey k_key_pressed;
+        Constants::KeyboardKey k_key_released;
+    };
 
     struct GameObjectAttrbutes {
         std::string _mesh; //change to mesh_id:[string|enum]
@@ -77,5 +84,3 @@ namespace Constants {
 
     };
 }
-
-#endif

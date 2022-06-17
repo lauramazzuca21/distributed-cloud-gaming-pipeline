@@ -1,5 +1,4 @@
-#ifndef _GAME_LOOP_H_
-#define _GAME_LOOP_H_
+#pragma once
 
 #include <vector>
 #include "GameObject.h"
@@ -9,7 +8,7 @@ private:
     std::vector<GameObject*> _sceneObjects;
 
 public:
-    void update(float dt);
+    void update(const Constants::Input& input, float dt);
     //should it return a vector of attributes or should it grant access to the GameObjects and let it retrieve them on its own?
     std::vector<Constants::GameObjectAttrbutes> getGameObjectsAttributes() const {
         std::vector<Constants::GameObjectAttrbutes> result;
@@ -20,5 +19,3 @@ public:
     std::vector<GameObject*> getSceneObjects() const {    return _sceneObjects;  }
 
 };
-
-#endif
