@@ -10,7 +10,7 @@ private:
     std::vector<GameObject*> _sceneObjects;
     // InputHandler* _handler;
     Camera _camera;
-    Light _light;
+    std::vector<Light*> _sceneLights;
 
 public:
     // GameScene(InputHandler* handler) : _handler{handler} {}

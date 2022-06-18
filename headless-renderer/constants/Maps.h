@@ -15,6 +15,4 @@ namespace Constants {
         {ShadingType::TOON, {"shaders/v_toon.glsl","shaders/f_toon.glsl"}},
         {ShadingType::WAVE, {"shaders/v_wave.glsl","shaders/f_wave.glsl"}}
     };
-
-    static const glm::vec3 axis_3[3]{X_AXIS_3, Y_AXIS_3, Z_AXIS_3};
 }
