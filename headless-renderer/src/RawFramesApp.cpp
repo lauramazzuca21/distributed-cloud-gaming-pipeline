@@ -28,7 +28,7 @@ void RawFramesApp::init() {
     glfwMakeContextCurrent(_window);
     printf ("Window loaded\n");
     
-	_render = new Render();
+	_render = new Renderer();
 }
 
 void RawFramesApp::run(int argc, char *argv[]) {
@@ -40,11 +40,11 @@ void RawFramesApp::run(int argc, char *argv[]) {
     std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();    
         double dt =  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - previousTime).count();
         previousTime = currentTime;
-        _render->update(dt);
+        // _render->update(dt);
         
         // if (frameCount < 25) //uncomment to enforce fps
         // {
-            _render->nextFrame(dt);
+            _render->draw(dt);
             frameCount++;
         // }
 

@@ -11,7 +11,7 @@ private:
 
 public:
     GameObject(Constants::GameObjectAttrbutes attributes) : _attributes(attributes) {}
-    virtual void update(double dt) = 0;
+    virtual void update(const Constants::Input& input, double dt) = 0;
     
     const std::string& getName() const {return _attributes._name; }
     Constants::ShadingType getShaderType() const { return _attributes._shader; }

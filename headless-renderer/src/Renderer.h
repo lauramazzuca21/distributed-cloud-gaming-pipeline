@@ -51,7 +51,6 @@ private:
     ContextEGL *_ctxt;
     bool _useEGL = false;
     Light *_light = new Light();
-    Camera *_camera = new Camera();
     std::vector<Model *> _models;
     std::map<Constants::ShadingType, ShaderProgram *> _loadedShaders = {};
 

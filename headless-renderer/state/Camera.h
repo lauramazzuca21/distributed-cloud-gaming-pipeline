@@ -1,8 +1,6 @@
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
+#pragma once
 
 #include <glm/glm.hpp>
-#include <GL/glew.h>
 
 class Camera {
     private:
@@ -18,5 +16,3 @@ class Camera {
         glm::mat4 getProjectionMatrix(int width, int height);
         glm::mat4 getViewMatrix();
 };
-
-#endif
