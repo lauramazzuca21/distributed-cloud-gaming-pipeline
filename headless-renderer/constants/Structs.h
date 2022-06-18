@@ -3,6 +3,8 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+
+#include "../extern/uuid_v4.h"
  #include "Enums.h"
 
 namespace Constants {
@@ -17,8 +19,8 @@ namespace Constants {
     };
 
     struct GameObjectAttrbutes {
-        std::string _UUID; //this should be the id to ref the remote model
 
+        std::string _UUID;
         std::string _mesh; //change to mesh_id:[string|enum]
         Constants::ShadingType _shader; 
         Constants::MaterialType _material; 
@@ -26,6 +28,12 @@ namespace Constants {
         glm::mat4 _M;
         glm::vec3 _scale = glm::vec3(1.0f);
         glm::vec3 _rotAngles = glm::vec3(0.0f);
+
+        GameObjectAttrbutes() {
+            UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+            UUIDv4::UUID uuid = uuidGenerator.getUUID();
+            _UUID = uuid.str();
+        }
 
     };
     

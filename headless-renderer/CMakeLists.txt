@@ -4,16 +4,22 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Debug)
 SET(GLFW FALSE)
 
-file(GLOB SRCs
-     "*.h"
-     "*.cpp"
-)
 
-add_executable(main ${SRCs}) 
-add_subdirectory(graphics)
-add_subdirectory(src)
-add_subdirectory(state)
+file( GLOB RENDERER_SRCs graphics/*.cpp src/renderer/*.cpp)
+file( GLOB RENDERER_H graphics/*.h src/renderer/*.h)
 
+add_library( GraphicsLib ${RENDERER_SRCs} ${RENDERER_H} )
+target_link_libraries(GraphicsLib PRIVATE ${GLEW_LIBRARIES})
+
+file( GLOB STATE_SRCs state/*.cpp src/state/*.cpp )
+file( GLOB STATE_H state/*.h src/state/*.h)
+
+add_library( StateLib ${STATE_SRCs} ${STATE_H} )
+target_link_libraries(StateLib PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLEW_LIBRARIES} ${GSTREAMERMM_LIBRARIES})
+
+
+add_executable(state src/state.cpp) 
+add_executable(renderer src/renderer.cpp) 
 
 find_package(PkgConfig) 
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL GLX)
@@ -39,5 +45,6 @@ else(GLFW)
             ${GLIB_LIBRARY_DIRS}
             ${GSTREAMERMM_INCLUDE_DIRS}
     ) 
-    target_link_libraries(main PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLEW_LIBRARIES} ${GSTREAMERMM_LIBRARIES})
+    target_link_libraries(renderer PRIVATE GraphicsLib OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLEW_LIBRARIES} ${GSTREAMERMM_LIBRARIES})
+    target_link_libraries(state PRIVATE StateLib ${GLEW_LIBRARIES})
 endif(GLFW)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../graphics/Model.h"
+#include "../../graphics/Model.h"
 
 class Dragon : public Model {
 

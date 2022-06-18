@@ -11,6 +11,7 @@ private:
 
 public:
     GameObject(Constants::GameObjectAttrbutes attributes) : _attributes(attributes) {}
+    GameObject() {}
     virtual void update(const Constants::Input& input, double dt) = 0;
     
     const std::string& getUUID() const {return _attributes._UUID; }

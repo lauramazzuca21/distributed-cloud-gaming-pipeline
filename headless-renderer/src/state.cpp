@@ -1,6 +1,9 @@
 #include <chrono>
 
-#include "GameScene.h"
+#include "../state/GameScene.h"
+#include "state/GODragon.h"
+
+static const int	MAX_DRAGONS_PER_ROW = 10; //state stuff
 
 int main(int argc, char const *argv[])
 {
@@ -14,6 +17,8 @@ int main(int argc, char const *argv[])
     std::chrono::steady_clock::time_point previousTime = baseTime;
     
     GameScene scene;
+
+    scene.addSceneObject(new Dragon());
 
     /* Start game loop */
     while (true)

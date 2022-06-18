@@ -17,12 +17,9 @@ public:
 
     void update(const Constants::Input& input, float dt);
 
-
+    void addSceneObject(GameObject* obj);
+    void addLightObject(Light* light);
     //should it return a vector of attributes or should it grant access to the GameObjects and let it retrieve them on its own?
-    std::vector<Constants::GameObjectAttrbutes> getGameObjectsAttributes() const {
-        std::vector<Constants::GameObjectAttrbutes> result;
-        for(GameObject* o : _sceneObjects)
-            result.push_back(o->getAttributes());
-    }
+    std::vector<Constants::GameObjectAttrbutes> getGameObjectsAttributes() const;
     std::vector<GameObject*> getSceneObjects() const {    return _sceneObjects;  }
 };
