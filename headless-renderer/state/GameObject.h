@@ -13,7 +13,7 @@ public:
     GameObject(Constants::GameObjectAttrbutes attributes) : _attributes(attributes) {}
     virtual void update(const Constants::Input& input, double dt) = 0;
     
-    const std::string& getName() const {return _attributes._name; }
+    const std::string& getUUID() const {return _attributes._UUID; }
     Constants::ShadingType getShaderType() const { return _attributes._shader; }
     void setShaderType(Constants::ShadingType shader) { _attributes._shader = shader; }
     Constants::MaterialType getMaterialType() const { return _attributes._material; }
@@ -27,6 +27,7 @@ public:
     void rotateOCS(Constants::VectorType rotation_vector, float angle);
     void scaleOCS(glm::vec3 scale_factor);
     void translateOCS(glm::vec3 translation_vector);
+
     void rotateWCS(Constants::VectorType rotation_vector, float angle);
     void scaleWCS(glm::vec3 scale_factor);
     void translateWCS(glm::vec3 translation_vector);

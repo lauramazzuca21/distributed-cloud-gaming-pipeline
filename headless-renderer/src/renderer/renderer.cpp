@@ -1,5 +1,5 @@
 
-#include "src/GstRawFramesApp.h"
+#include "GstRawFramesApp.h"
 // #include "src/RawFramesApp.h"
 
 int main(int argc, char *argv[])

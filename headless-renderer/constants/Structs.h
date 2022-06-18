@@ -17,11 +17,11 @@ namespace Constants {
     };
 
     struct GameObjectAttrbutes {
+        std::string _UUID; //this should be the id to ref the remote model
+
         std::string _mesh; //change to mesh_id:[string|enum]
         Constants::ShadingType _shader; 
         Constants::MaterialType _material; 
-
-        std::string _name; //this should be the id to ref the remote model
         
         glm::mat4 _M;
         glm::vec3 _scale = glm::vec3(1.0f);

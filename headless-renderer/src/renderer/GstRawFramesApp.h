@@ -2,8 +2,8 @@
 
 #include <glibmm/main.h>
 
-#include "../utils/gstLogUtils.h"
-#include "Renderer.h"
+#include "../../utils/gstLogUtils.h"
+#include "../../graphics/Renderer.h"
 
 class GstRawFramesApp {
 

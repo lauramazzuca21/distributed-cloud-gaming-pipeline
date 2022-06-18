@@ -12,6 +12,7 @@ file(GLOB SRCs
 add_executable(main ${SRCs}) 
 add_subdirectory(graphics)
 add_subdirectory(src)
+add_subdirectory(state)
 
 
 find_package(PkgConfig) 
