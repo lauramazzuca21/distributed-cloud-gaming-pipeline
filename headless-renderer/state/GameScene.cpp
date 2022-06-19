@@ -10,4 +10,13 @@ std::vector<Constants::GameObjectAttrbutes> GameScene::getGameObjectsAttributes(
     std::vector<Constants::GameObjectAttrbutes> result;
     for(GameObject* o : _sceneObjects)
         result.push_back(o->getAttributes());
+    return result;
+}
+
+void GameScene::addSceneObject(GameObject* obj) {
+
+}
+
+void GameScene::addLightObject(Light* light) {
+
 }
