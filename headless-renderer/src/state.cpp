@@ -1,5 +1,11 @@
 #include <chrono>
 
+#include <steam/steamnetworkingsockets.h>
+#include <steam/isteamnetworkingutils.h>
+#ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
+#include <steam/steam_api.h>
+#endif
+
 #include "../state/GameScene.hpp"
 #include "state/GODragon.hpp"
 

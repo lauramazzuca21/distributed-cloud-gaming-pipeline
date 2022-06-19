@@ -6,10 +6,11 @@
                 "${workspaceFolder}/**",
                 "/usr/lib/**",
                 "/usr/include/**",
-                "/usr/include/gstreamermm-1.0/**"
+                "/usr/include/gstreamermm-1.0/**",
+                "/usr/local/include/GameNetworkingSockets/**"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/gcc",
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "gnu17",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64",

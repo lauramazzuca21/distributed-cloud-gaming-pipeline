@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "../extern/uuid_v4.h"
+#include "../extern/headers/uuid_v4.h"
  #include "Enums.hpp"
 
 namespace Constants {
