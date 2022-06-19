@@ -1,10 +1,10 @@
 #ifndef _MODEL_H_
 #define _MODEL_H_
 
-#include "Mesh.h"
-#include "ShaderProgram.h"
-#include "../constants/Enums.h"
-#include "../constants/Structs.h"
+#include "Mesh.hpp"
+#include "ShaderProgram.hpp"
+#include "../constants/Enums.hpp"
+#include "../constants/Structs.hpp"
 
 class Model {
     //these will be bound in the renderer, the model should become the GameObject state holder

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../state/GameObject.h"
+#include "../../state/GameObject.hpp"
 
 class Dragon : public GameObject {
 

@@ -1,7 +1,8 @@
-#include "Model.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.inl>
-#include "../constants/Values.h"
+
+#include "Model.hpp"
+#include "../constants/Values.hpp"
 
 Model::Model(std::string filePath, std::string name, Constants::ShadingType shader, Constants::MaterialType material) : _name{name}, _shader{shader} {
     _material = Constants::Material(material);

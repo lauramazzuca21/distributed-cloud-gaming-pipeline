@@ -3,8 +3,8 @@
 #include <map>
 #include <string>
 
-#include "Enums.h"
-#include "Values.h"
+#include "Enums.hpp"
+#include "Values.hpp"
 
 namespace Constants {
     static const std::map<ShadingType, std::pair<std::string, std::string>> shaderFiles = {

@@ -7,12 +7,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.inl>
 
-#include "../utils/glLogUtils.h"
+#include "../utils/glLogUtils.hpp"
 
-#include "../graphics/ContextEGL.h"
-#include "../graphics/ShaderProgram.h"
+#include "../graphics/ContextEGL.hpp"
+#include "../graphics/ShaderProgram.hpp"
 
-#include "Model.h"
+#include "Model.hpp"
 
 class Renderer
 {

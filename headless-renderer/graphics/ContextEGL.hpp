@@ -1,7 +1,7 @@
 #ifndef _CONTEXT_EGL_H_
 #define _CONTEXT_EGL_H_
 
-#include "../utils/glLogUtils.h"
+#include "../utils/glLogUtils.hpp"
 
 class ContextEGL {
 

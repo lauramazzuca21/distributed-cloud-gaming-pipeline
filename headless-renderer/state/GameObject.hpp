@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string>
 #include <glm/glm.hpp>
-#include "../constants/Enums.h"
-#include "../constants/Structs.h"
+#include "../constants/Enums.hpp"
+#include "../constants/Structs.hpp"
 
 class GameObject {
 private:

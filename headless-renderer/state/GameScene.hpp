@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "GameObject.h"
-#include "Camera.h"
-#include "Light.h"
+#include "GameObject.hpp"
+#include "Camera.hpp"
+#include "Light.hpp"
 
 class GameScene {
 private:

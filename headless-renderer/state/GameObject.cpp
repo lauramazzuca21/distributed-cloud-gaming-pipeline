@@ -1,7 +1,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "GameObject.h"
-#include "../constants/Maps.h"
+#include "GameObject.hpp"
+#include "../constants/Maps.hpp"
 
 void GameObject::rotateOCS(Constants::VectorType rotationVector, float angle)
 {

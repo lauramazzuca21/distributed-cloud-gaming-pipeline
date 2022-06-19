@@ -1,4 +1,4 @@
-#include "Dragon.h"
+#include "Dragon.hpp"
 
 Dragon::Dragon(std::string name, Constants::MaterialType material, Constants::ShadingType shader) 
     : Model::Model("meshes/xyzrgb_dragon.obj", name, shader, material) {

@@ -1,5 +1,5 @@
-#include "Camera.h"
-#include "../constants/Maps.h"
+#include "Camera.hpp"
+#include "../constants/Maps.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 glm::mat4 Camera::getProjectionMatrix(int width, int height) {

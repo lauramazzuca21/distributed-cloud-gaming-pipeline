@@ -1,7 +1,7 @@
 #include <chrono>
 
-#include "../state/GameScene.h"
-#include "state/GODragon.h"
+#include "../state/GameScene.hpp"
+#include "state/GODragon.hpp"
 
 static const int	MAX_DRAGONS_PER_ROW = 10; //state stuff
 

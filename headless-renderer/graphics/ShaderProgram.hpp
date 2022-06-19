@@ -1,13 +1,12 @@
-#ifndef _SHADER_PROGRAM_H_
-#define _SHADER_PROGRAM_H_
+#pragma once
 
 #include <string>
 #include <map>
 
 #include <glm/glm.hpp>
 
-#include "../utils/glLogUtils.h"
-#include "../constants/Maps.h"
+#include "../utils/glLogUtils.hpp"
+#include "../constants/Maps.hpp"
 
 class ShaderProgram
 {
@@ -65,5 +64,3 @@ private:
     char* readShaderSource(const std::string& shaderFile);
     void loadUniforms();
 };
-
-#endif

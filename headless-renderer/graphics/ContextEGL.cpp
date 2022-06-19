@@ -1,4 +1,4 @@
-#include "ContextEGL.h"
+#include "ContextEGL.hpp"
 
 const EGLint ContextEGL::context_attrib[13] = {
     EGL_CONTEXT_CLIENT_VERSION, 3,

@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <fstream>
 
-#include "../utils/glLogUtils.h"
+#include "../utils/glLogUtils.hpp"
 
 class Mesh {
 	std::vector<glm::vec3> _vertices;

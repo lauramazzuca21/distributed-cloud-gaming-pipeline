@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "../extern/uuid_v4.h"
- #include "Enums.h"
+ #include "Enums.hpp"
 
 namespace Constants {
 
