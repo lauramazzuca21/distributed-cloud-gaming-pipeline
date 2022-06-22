@@ -1,4 +1,4 @@
-#include "Mesh.h"
+#include "Mesh.hpp"
 #include <cstring>
 
 Mesh::Mesh(const std::string& filePath) {

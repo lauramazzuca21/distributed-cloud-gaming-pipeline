@@ -1,9 +1,9 @@
 {
     "version": "2.0.0",
     "tasks": [{
-      "label": "build c program",
+      "label": "build c++ program",
       "type": "shell",
-      "command": "gcc",
+      "command": "g++",
       "args": [
         "-g",
         "-o",

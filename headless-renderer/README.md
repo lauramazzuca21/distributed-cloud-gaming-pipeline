@@ -40,7 +40,7 @@ then, to run it:
 ### Docker container setup
 To install from a clone of this repository
 ```bash
-sudo docker build . -t headless-renderer:1
+sudo docker build . -t headless-renderer:latest
 ```
 To download from [docker hub](https://hub.docker.com/repository/docker/lauramazzuca/headless-renderer)
 ```bash
@@ -49,5 +49,5 @@ docker pull lauramazzuca/headless-renderer:latest
 
 Then run it with host network configuration with
 ```bash
-sudo docker run --rm --network host -dit headless-renderer:1
+sudo docker run --rm --network host -dit headless-renderer:latest
 ```
