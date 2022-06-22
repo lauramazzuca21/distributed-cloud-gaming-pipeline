@@ -2,17 +2,18 @@
 #include <stdlib.h>
 #include <string>
 #include <glm/glm.hpp>
+
 #include "../constants/Enums.hpp"
-#include "../constants/Structs.hpp"
+#include "../constants/structs/Input.hpp"
 
 class GameObject {
 private:
-    Constants::GameObjectAttrbutes _attributes;
+    Structs::GameObjectAttrbutes _attributes;
 
 public:
-    GameObject(Constants::GameObjectAttrbutes attributes) : _attributes(attributes) {}
+    GameObject(Structs::GameObjectAttrbutes attributes) : _attributes(attributes) {}
     GameObject() {}
-    virtual void update(const Constants::Input& input, double dt) = 0;
+    virtual void update(const Structs::Input& input, double dt) = 0;
     
     const std::string& getUUID() const {return _attributes._UUID; }
     Constants::ShadingType getShaderType() const { return _attributes._shader; }
@@ -23,7 +24,7 @@ public:
     glm::vec3 getScale() const { return _attributes._scale; }
     glm::vec3 getRotAngles() const { return _attributes._rotAngles; }
     glm::vec3 getPosition() const { return glm::vec3(_attributes._M[3].x, _attributes._M[3].y, _attributes._M[3].z); }
-    Constants::GameObjectAttrbutes getAttributes() const {return _attributes; }
+    Structs::GameObjectAttrbutes getAttributes() const {return _attributes; }
 
     void rotateOCS(Constants::VectorType rotation_vector, float angle);
     void scaleOCS(glm::vec3 scale_factor);

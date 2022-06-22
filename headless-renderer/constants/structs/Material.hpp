@@ -4,45 +4,11 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "../extern/headers/uuid_v4.h"
- #include "Enums.hpp"
+ #include "../Enums.hpp"
 
-namespace Constants {
+namespace Structs {
 
-    struct Input {
-        float mouse_x;
-        float mouse_y;
-        Constants::MouseKey m_key_pressed;
-        Constants::MouseKey m_key_released;
-        Constants::KeyboardKey k_key_pressed;
-        Constants::KeyboardKey k_key_released;
-    };
-
-    struct FrameParams {
-        u_int64_t _frame_num;
-        std::vector<GameObjectAttrbutes> _scene_objects;
-    };
-
-    struct GameObjectAttrbutes {
-
-        std::string _UUID;
-        std::string _mesh; //change to mesh_id:[string|enum]
-        Constants::ShadingType _shader; 
-        Constants::MaterialType _material; 
-        
-        glm::mat4 _M;
-        glm::vec3 _scale = glm::vec3(1.0f);
-        glm::vec3 _rotAngles = glm::vec3(0.0f);
-
-        GameObjectAttrbutes() {
-            UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
-            UUIDv4::UUID uuid = uuidGenerator.getUUID();
-            _UUID = uuid.str();
-        }
-
-    };
-    
-      struct Material {
+    struct Material {
         std::string name;
         glm::vec3 ambient;
         glm::vec3 diffuse;
