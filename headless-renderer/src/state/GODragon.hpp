@@ -5,5 +5,5 @@
 class Dragon : public GameObject {
 
     public:
-        void update(const Constants::Input& input, double dt) override;
+        void update(const Input& input, double dt) override;
 };

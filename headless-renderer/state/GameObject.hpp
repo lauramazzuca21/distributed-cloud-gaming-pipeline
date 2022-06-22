@@ -4,16 +4,16 @@
 #include <glm/glm.hpp>
 
 #include "../constants/Enums.hpp"
-#include "../constants/structs/Input.hpp"
+#include "../constants/Types.hpp"
 
 class GameObject {
 private:
-    Structs::GameObjectAttrbutes _attributes;
+    GameObjectParams _attributes;
 
 public:
-    GameObject(Structs::GameObjectAttrbutes attributes) : _attributes(attributes) {}
+    GameObject(GameObjectParams attributes) : _attributes(attributes) {}
     GameObject() {}
-    virtual void update(const Structs::Input& input, double dt) = 0;
+    virtual void update(const Input& input, double dt) = 0;
     
     const std::string& getUUID() const {return _attributes._UUID; }
     Constants::ShadingType getShaderType() const { return _attributes._shader; }
@@ -24,7 +24,7 @@ public:
     glm::vec3 getScale() const { return _attributes._scale; }
     glm::vec3 getRotAngles() const { return _attributes._rotAngles; }
     glm::vec3 getPosition() const { return glm::vec3(_attributes._M[3].x, _attributes._M[3].y, _attributes._M[3].z); }
-    Structs::GameObjectAttrbutes getAttributes() const {return _attributes; }
+    GameObjectParams getParams() const {return _attributes; }
 
     void rotateOCS(Constants::VectorType rotation_vector, float angle);
     void scaleOCS(glm::vec3 scale_factor);

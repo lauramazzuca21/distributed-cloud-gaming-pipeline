@@ -3,8 +3,8 @@
 #include <chrono>
 #include <thread>
 
-#include <./steam/steamnetworkingsockets.h>
-#include <./steam/isteamnetworkingutils.h>
+#include <GameNetworkingSockets/steam/steamnetworkingsockets.h>
+#include <GameNetworkingSockets/steam/isteamnetworkingutils.h>
 #ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
 #include <./steam/steam_api.h>
 #endif
@@ -19,14 +19,14 @@ static void InitSteamDatagramConnectionSockets()
 	#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
 		SteamDatagramErrMsg errMsg;
 		if ( !GameNetworkingSockets_Init( nullptr, errMsg ) )
-			log::print( "GameNetworkingSockets_Init failed.  %s", errMsg );
+			logger::print( "GameNetworkingSockets_Init failed.  %s", errMsg );
 	#else
 		SteamDatagram_SetAppID( 570 ); // Just set something, doesn't matter what
 		SteamDatagram_SetUniverse( false, k_EUniverseDev );
 
 		SteamDatagramErrMsg errMsg;
 		if ( !SteamDatagramClient_Init( errMsg ) )
-			log::print( "SteamDatagramClient_Init failed.  %s", errMsg );
+			logger::print( "SteamDatagramClient_Init failed.  %s", errMsg );
 
 		// Disable authentication when running with Steam, for this
 		// example, since we're not a real app.
@@ -37,7 +37,7 @@ static void InitSteamDatagramConnectionSockets()
 		SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1 );
 	#endif
 
-	// g_logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
+	// g_loggerTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
 
 	// SteamNetworkingUtils()->SetDebugOutputFunction( k_ESteamNetworkingSocketsDebugOutputType_Msg, DebugOutput );
 }

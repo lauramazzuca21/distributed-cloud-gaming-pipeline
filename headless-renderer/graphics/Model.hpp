@@ -4,13 +4,13 @@
 #include "Mesh.hpp"
 #include "ShaderProgram.hpp"
 #include "../constants/Enums.hpp"
-#include "../constants/Structs.hpp"
+#include "../constants/Types.hpp"
 
 class Model {
     //these will be bound in the renderer, the model should become the GameObject state holder
     Mesh * _mesh; //change to mesh_id:[string|enum]
     Constants::ShadingType _shader; 
-    Constants::Material _material; 
+    Material _material; 
 
     std::string _name; //this should be the id to ref the remote model
     
@@ -28,7 +28,7 @@ public:
     const std::string& getName() const {return _name; }
     Constants::ShadingType getShaderType() { return _shader; }
     void setShaderType(Constants::ShadingType shader) { _shader = shader; }
-    Constants::Material getMaterial() { return _material; }
+    Material getMaterial() { return _material; }
     void setMaterial(Constants::MaterialType material) { _material = material; }
 
     glm::vec3 getScale() { return _scale; }

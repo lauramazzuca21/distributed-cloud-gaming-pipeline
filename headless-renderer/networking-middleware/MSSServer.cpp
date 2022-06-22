@@ -18,26 +18,29 @@ namespace MSteamSockets {
         opt.SetPtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)SteamNetConnectionStatusChangedCallback );
         _hListenSock = _pInterface->CreateListenSocketIP( serverLocalAddr, 1, &opt );
         if ( _hListenSock == k_HSteamListenSocket_Invalid )
-            log::printErr( "Failed to listen on port %d", nPort );
+            logger::printErr( "Failed to listen on port %d", nPort );
         _hPollGroup = _pInterface->CreatePollGroup();
         if ( _hPollGroup == k_HSteamNetPollGroup_Invalid )
-            log::printErr( "Failed to listen on port %d", nPort );
-        log::print( "Server listening on port %d\n", nPort );
+            logger::printErr( "Failed to listen on port %d", nPort );
+        logger::print( "Server listening on port %d\n", nPort );
     }
 
-    bool Server::send(const char *str )
+    bool Server::send(ByteVector& buffer)
 	{
-		_pInterface->SendMessageToConnection( _client, str, (uint32)strlen(str), k_nSteamNetworkingSend_Reliable, nullptr );
+		EResult res = _pInterface->SendMessageToConnection( _client, buffer.data(), buffer.size(), k_nSteamNetworkingSend_Reliable, nullptr );
+        if (res != k_EResultOK)
+            return false;
+        return true;
 	}
 
     void Server::stop() {
         // Close all the connections
-		log::print( "Closing connection...\n" );
+		logger::print( "Closing connection...\n" );
         // Send them one more goodbye message.  Note that we also have the
         // connection close reason as a place to send final data.  However,
-        // that's usually best left for more diagnostic/log text not actual
+        // that's usually best left for more diagnostic/logger text not actual
         // protocol strings.
-        send("Server is shutting down.  Goodbye." );
+        // send("Server is shutting down.  Goodbye." );
 
         // Close the connection.  We use "linger mode" to ask SteamNetworkingSockets
         // to flush this out and close gracefully.
@@ -68,7 +71,7 @@ namespace MSteamSockets {
 					// and connection change callbacks are dispatched in queue order.
 					assert( _client != k_HSteamNetConnection_Invalid );
 
-					// Select appropriate log messages
+					// Select appropriate logger messages
 					const char *pszDebugLogAction;
 					if ( pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally )
 					{
@@ -81,10 +84,10 @@ namespace MSteamSockets {
 						pszDebugLogAction = "closed by peer";
 					}
 
-					// Spew something to our own log.  Note that because we put their nick
+					// Spew something to our own logger.  Note that because we put their nick
 					// as the connection description, it will show up, along with their
 					// transport-specific data (e.g. their IP address)
-					log::print( "Connection %s %s, reason %d: %s\n",
+					logger::print( "Connection %s %s, reason %d: %s\n",
 						pInfo->m_info.m_szConnectionDescription,
 						pszDebugLogAction,
 						pInfo->m_info.m_eEndReason,
@@ -113,7 +116,7 @@ namespace MSteamSockets {
 				// This must be a new connection
 				assert( pInfo->m_hConn != _client );
 
-				log::print( "Connection request from %s", pInfo->m_info.m_szConnectionDescription );
+				logger::print( "Connection request from %s", pInfo->m_info.m_szConnectionDescription );
 
 				// A client is attempting to connect
 				// Try to accept the connection.
@@ -123,7 +126,7 @@ namespace MSteamSockets {
 					// disconnected, the connection may already be half closed.  Just
 					// destroy whatever we have on our side.
 					_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-					log::print( "Can't accept connection.  (It was already closed?)" );
+					logger::print( "Can't accept connection.  (It was already closed?)" );
 					break;
 				}
 
@@ -131,7 +134,7 @@ namespace MSteamSockets {
 				if ( !_pInterface->SetConnectionPollGroup( pInfo->m_hConn, _hPollGroup ) )
 				{
 					_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-					log::print( "Failed to set poll group?" );
+					logger::print( "Failed to set poll group?" );
 					break;
 				}
 			}

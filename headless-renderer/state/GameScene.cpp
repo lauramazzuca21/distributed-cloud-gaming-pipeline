@@ -1,17 +1,32 @@
 #include "GameScene.hpp"
 
-Constants::FrameParams& GameScene::update(const Constants::Input& input, float dt) {
+const FrameParams& GameScene::update(const Input& input, float dt) {
      
+     _currentParams._frame_num++;
+     _currentParams._scene_objects.clear();
+
     for(GameObject* o : _sceneObjects)
+    {
         o->update(input, dt);
+        _currentParams._scene_objects.push_back(o->getParams());
+    }   
+
+    for(Light* l : _sceneLights)
+        l->update(input, dt);
 
     moveCamera(input);
+
+    _currentParams._camera_params._projectionMatrix = _camera.getProjectionMatrix(width, height);
+    _currentParams._camera_params._viewMatrix = _camera.getViewMatrix();
+
+    return _currentParams;
+
 }
 
-std::vector<Constants::GameObjectAttrbutes> GameScene::getGameObjectsAttributes() const {
-    std::vector<Constants::GameObjectAttrbutes> result;
+std::vector<GameObjectParams> GameScene::getGameObjectsParams() const {
+    std::vector<GameObjectParams> result;
     for(GameObject* o : _sceneObjects)
-        result.push_back(o->getAttributes());
+        result.push_back(o->getParams());
     return result;
 }
 
@@ -23,7 +38,7 @@ void GameScene::addLightObject(Light* light) {
     _sceneLights.push_back(light);
 }
 
-void  GameScene::moveCamera(const Constants::Input& input) {
+void  GameScene::moveCamera(const Input& input) {
     switch(input.m_key_pressed)
     {
         case Constants::KeyboardKey::W:

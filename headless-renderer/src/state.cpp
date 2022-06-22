@@ -32,14 +32,16 @@ int main(int argc, char const *argv[])
         double dt =  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - previousTime).count();
         previousTime = currentTime;
         /*receive input from client*/
-        Constants::Input input;
+        Input input;
         input.k_key_pressed = Constants::KeyboardKey::W;
         input.m_key_pressed = Constants::MouseKey::LEFT;
-        const Constants::FrameParams& frameParams = scene.update(input, dt);
-
+        /*update frame*/
+        FrameParams frameParams = scene.update(input, dt);
+        /*encode frame prams*/
+        ByteVector buffer;
+        frameParams.encodeCBOR(buffer);
         /*send updated state to renderer*/
-        server.send();
-
+        server.send(buffer);
     }
 
     server.stop();

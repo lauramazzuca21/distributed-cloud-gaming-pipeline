@@ -1,0 +1,19 @@
+{
+  "name": "cborg",
+  "version": "3.0.3",
+  "description": "CBOR library that favors encoding and decoding, but not modifications.",
+  "keywords": [],
+  "author": "Marcus Chang <marcus.chang@arm.com>",
+  "repository": {
+    "url": "git@github.com:ARMmbed/cborg.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/ARMmbed/cborg",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    }
+  ],
+  "dependencies": {}
+}

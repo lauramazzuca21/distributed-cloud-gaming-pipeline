@@ -8,18 +8,18 @@
 
 namespace Structs {
 
-    struct Material {
+    struct _Material {
         std::string name;
         glm::vec3 ambient;
         glm::vec3 diffuse;
         glm::vec3 specular;
         GLfloat shininess;
 
-        Material() {
-            Material(Constants::MaterialType::NO_MATERIAL);
+        _Material() {
+            _Material(Constants::MaterialType::NO_MATERIAL);
         }
 
-        Material(Constants::MaterialType type) {
+        _Material(Constants::MaterialType type) {
             switch(type)
             {
                 case Constants::MaterialType::NO_MATERIAL:

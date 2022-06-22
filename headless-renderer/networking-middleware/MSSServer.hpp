@@ -1,8 +1,9 @@
 #pragma once
 
+#include "../constants/Types.hpp"
+
 #include "IServer.hpp"
 #include "MSteamSockets.hpp"
-
 
 namespace MSteamSockets {
     class Server //: public IServer 
@@ -15,12 +16,12 @@ namespace MSteamSockets {
                 MSteamSockets::ShutdownSteamDatagramConnectionSockets();
             }
             
-            void start();
+            void start() { start(4999); }
             void start(uint16 nPort);
             void stop();
 
             // bool send() override;
-            bool send(const char *str );
+            bool send(ByteVector& buffer);
             // void receive() override;
 
         private:

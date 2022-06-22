@@ -5,7 +5,7 @@
 #include "../constants/Values.hpp"
 
 Model::Model(std::string filePath, std::string name, Constants::ShadingType shader, Constants::MaterialType material) : _name{name}, _shader{shader} {
-    _material = Constants::Material(material);
+    _material = Material(material);
     _mesh = new Mesh(filePath);
 
     _M = glm::mat4(1.0);

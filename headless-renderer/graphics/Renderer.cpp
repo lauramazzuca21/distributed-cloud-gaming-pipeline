@@ -1,7 +1,7 @@
 #include "Renderer.hpp"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../extern/headers/stb_image_write.h"
+#include "../extern/images/stb_image_write.h"
 
 const std::vector<uint8_t>& Renderer::nextFrameBuffer(double dt) {
     draw(dt);

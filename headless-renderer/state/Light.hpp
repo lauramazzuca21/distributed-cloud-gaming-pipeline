@@ -12,4 +12,6 @@ class Light {
         glm::vec3 getPosition() {return position; }
         glm::vec3 getColor() {return color; }
         float_t getPower() {return power; }
+
+        void update(const Input& input, double dt) {}
 };

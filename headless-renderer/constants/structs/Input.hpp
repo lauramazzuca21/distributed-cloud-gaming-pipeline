@@ -3,7 +3,7 @@
 #include "../Enums.hpp"
 namespace Structs {
 
-    struct Input {
+    struct _Input {
         float mouse_x;
         float mouse_y;
         Constants::MouseKey m_key_pressed;
