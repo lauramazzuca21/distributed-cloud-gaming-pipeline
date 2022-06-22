@@ -16,8 +16,8 @@ file( GLOB RENDERER_H graphics/*.hpp src/renderer/*.hpp)
 add_library( Graphics ${RENDERER_SRCs} ${RENDERER_H} )
 target_link_libraries(Graphics PRIVATE OpenGL::OpenGL OpenGL::EGL OpenGL::GLX ${GLEW_LIBRARIES} ${GSTREAMERMM_LIBRARIES})
 
-file( GLOB STATE_SRCs state/*.cpp src/state/*.cpp )
-file( GLOB STATE_H state/*.hpp src/state/*.hpp)
+file( GLOB STATE_SRCs state/*.cpp networking-middleware/*.cpp src/state/*.cpp )
+file( GLOB STATE_H state/*.hpp networking-middleware/*.hpp src/state/*.hpp)
 
 add_library( State ${STATE_SRCs} ${STATE_H} )
 target_link_libraries(State PRIVATE ${GLEW_LIBRARIES})

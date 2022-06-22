@@ -18,6 +18,11 @@ namespace Constants {
         Constants::KeyboardKey k_key_released;
     };
 
+    struct FrameParams {
+        u_int64_t _frame_num;
+        std::vector<GameObjectAttrbutes> _scene_objects;
+    };
+
     struct GameObjectAttrbutes {
 
         std::string _UUID;

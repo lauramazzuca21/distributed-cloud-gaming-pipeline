@@ -1,27 +1,5 @@
-#include <locale.h>
-#include <glib.h>
-#include <gst/gst.h>
-#include <gst/sdp/sdp.h>
+#include "streamer.h"
 
-#ifdef G_OS_UNIX
-#include <glib-unix.h>
-#endif
-
-#define GST_USE_UNSTABLE_API
-#include <gst/webrtc/webrtc.h>
-
-#include <libsoup/soup.h>
-#include <json-glib/json-glib.h>
-#include <string.h>
-
-#define RTP_PAYLOAD_TYPE "96"
-#define SOUP_HTTP_PORT 57778
-#define STUN_SERVER "stun.l.google.com:19302"
-#define TURN_SERVER_TCP "turn.anyfirewall.com:443?transport=tcp"
-#define TURN_SERVER_UDP "turn01.hubl.in?transport=udp"
-
-#define WIDTH "1280"
-#define HEIGHT "720"
 typedef struct _ReceiverEntry ReceiverEntry;
 
 ReceiverEntry *create_receiver_entry (SoupWebsocketConnection * connection);
@@ -57,129 +35,6 @@ struct _ReceiverEntry
   GstElement *webrtcbin;
 };
 
-const gchar *html_source = " \n \
-<html> \n \
-  <head> \n \
-    <script type=\"text/javascript\" src=\"https://webrtc.github.io/adapter/adapter-latest.js\"></script> \n \
-    <script type=\"text/javascript\"> \n \
-      var html5VideoElement; \n \
-      var textbx; \n \
-      var websocketConnection; \n \
-      var webrtcPeerConnection; \n \
-      var webrtcConfiguration; \n \
-      var reportError; \n \
- \n \
- \n \
-      function onLocalDescription(desc) { \n \
-        console.log(\"Local description: \" + JSON.stringify(desc)); \n \
-        webrtcPeerConnection.setLocalDescription(desc).then(function() { \n \
-          websocketConnection.send(JSON.stringify({ type: \"sdp\", \"data\": webrtcPeerConnection.localDescription })); \n \
-        }).catch(reportError); \n \
-      } \n \
- \n \
- \n \
-      function onIncomingSDP(sdp) { \n \
-        console.log(\"Incoming SDP: \" + JSON.stringify(sdp)); \n \
-        webrtcPeerConnection.setRemoteDescription(sdp).catch(reportError); \n \
-        webrtcPeerConnection.createAnswer().then(onLocalDescription).catch(reportError); \n \
-      } \n \
- \n \
- \n \
-      function onIncomingICE(ice) { \n \
-        var candidate = new RTCIceCandidate(ice); \n \
-        console.log(\"Incoming ICE: \" + JSON.stringify(ice)); \n \
-        webrtcPeerConnection.addIceCandidate(candidate).catch(reportError); \n \
-      } \n \
- \n \
- \n \
-      function onAddRemoteStream(event) { \n \
-        console.log(\"Received stream \" +  event.streams[0]); \n \
-        html5VideoElement.srcObject = event.streams[0]; \n \
-        if(!html5VideoElement.srcObject.active) \n \
-            console.log(\"stream is not active! \"); \n \
-      } \n \
- \n \
- \n \
-      function onIceCandidate(event) { \n \
-        if (event.candidate == null) \n \
-          return; \n \
- \n \
-        console.log(\"Sending ICE candidate out: \" + JSON.stringify(event.candidate)); \n \
-        websocketConnection.send(JSON.stringify({ \"type\": \"ice\", \"data\": event.candidate })); \n \
-      } \n \
- \n \
- \n \
-      function onServerMessage(event) { \n \
-        var msg; \n \
- \n \
-        try { \n \
-          msg = JSON.parse(event.data); \n \
-        } catch (e) { \n \
-          return; \n \
-        } \n \
- \n \
-        if (!webrtcPeerConnection) { \n \
-          webrtcPeerConnection = new RTCPeerConnection(webrtcConfiguration); \n \
-          webrtcPeerConnection.ontrack = onAddRemoteStream; \n \
-          webrtcPeerConnection.onicecandidate = onIceCandidate; \n \
-        } \n \
- \n \
-        switch (msg.type) { \n \
-          case \"sdp\": onIncomingSDP(msg.data); break; \n \
-          case \"ice\": onIncomingICE(msg.data); break; \n \
-          default: break; \n \
-        } \n \
-      } \n \
- \n \
- \n \
-      function playStream( hostname, port, path, configuration, reportErrorCB) { \n \
-        var l = window.location;\n \
-        var wsHost = (hostname != undefined) ? hostname : l.hostname; \n \
-        var wsPort = (port != undefined) ? port : l.port; \n \
-        var wsPath = (path != undefined) ? path : \"ws\"; \n \
-        if (wsPort) \n\
-          wsPort = \":\" + wsPort; \n\
-        var wsUrl = \"ws://\" + wsHost + wsPort + \"/\" + wsPath; \n \
- \n \
-        html5VideoElement = document.getElementById(\"stream\"); \n \
-        textbx = document.getElementById(\"textbox\"); \n \
-        html5VideoElement.onloadeddata = (event) => { \n \
-        console.log('Yay! The readyState just increased to  ' + \n \
-            'HAVE_CURRENT_DATA or greater for the first time.'); \n \
-        }; \n \
-        html5VideoElement.onsuspend = (event) => {\n \
-        console.log('Data loading has been suspended.');\n \
-        };\n \
-        html5VideoElement.onstalled = (event) => {\n \
-        console.log('Failed to fetch data, but trying.');\n \
-        };\n \
-        html5VideoElement.onerror = function() {\n \
-        console.log(\"Error \" + html5VideoElement.error.code + \"; details: \" + html5VideoElement.error.message);\n \
-        }\n \
-        webrtcConfiguration = configuration; \n \
-        reportError = (reportErrorCB != undefined) ? reportErrorCB : function(text) {}; \n \
-        console.log(\"Opening connection with: \" + wsUrl); \n \
-        websocketConnection = new WebSocket(wsUrl); \n \
-        websocketConnection.addEventListener(\"message\", onServerMessage); \n \
-      } \n \
- \n \
-      window.onload = function() { \n \
-        var config = { 'iceServers': [{ 'urls': 'stun:" STUN_SERVER "' }, {'urls': 'turn:"TURN_SERVER_TCP"', credential: 'webrtc', username: 'webrtc'}] }; \n\
-        playStream( null, null, null, config, function (errmsg) { console.error(errmsg); }); \n \
-      }; \n \
- \n \
-    </script> \n \
-  </head> \n \
- \n \
-  <body> \n \
-    <div> \n \
-      <video id=\"stream\" autoplay playsinline>Your browser does not support video</video> \n \
-    </div> \n \
-    <label id=\"textbox\" >0</label> \n \
-  </body> \n \
-</html> \n \
-";
-
 ReceiverEntry *
 create_receiver_entry (SoupWebsocketConnection * connection)
 {
@@ -203,7 +58,7 @@ create_receiver_entry (SoupWebsocketConnection * connection)
       STUN_SERVER " turn-server=turn://webrtc:webrtc@" TURN_SERVER_TCP " "
       "udpsrc port=5000 caps=\"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)RAW, sampling=(string)RGBA, depth=(string)8, width=(string)" WIDTH ", height=(string)" HEIGHT ", colorimetry=(string)BT601-5, payload=(int)96, ssrc=(uint)1103043224, timestamp-offset=(uint)1948293153, seqnum-offset=(uint)27904\" "
       "! rtpvrawdepay ! rawvideoparse width=" WIDTH " height=" HEIGHT " format=11 !" //! rtpjitterbuffer faststart-min-packets=2048 latency=2048 
-      " videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 ! x264enc bitrate=3500 interlaced=true frame-packing=checkerboard speed-preset=faster tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue  leaky=downstream ! h264parse ! "
+      " videoconvert ! video/x-raw, format=YV12 ! videorate ! video/x-raw, framerate=30/1 ! x264enc bitrate=15000 interlaced=true frame-packing=checkerboard speed-preset=faster tune=zerolatency sliced-threads=true threads=4 ! video/x-h264,profile=constrained-baseline ! queue  leaky=downstream ! h264parse ! "
       "rtph264pay name=payloader aggregate-mode=zero-latency ! "
       "application/x-rtp,media=video,encoding-name=H264,profile-level-id=42c01f,payload="
       RTP_PAYLOAD_TYPE " ! webrtcbin. ", &error);
@@ -221,11 +76,13 @@ create_receiver_entry (SoupWebsocketConnection * connection)
     g_object_set (rtpbin, "latency", 10, NULL);
     gst_object_unref (rtpbin);
 
+ /*retrieve its transceivers...*/
     g_signal_emit_by_name (receiver_entry->webrtcbin, "get-transceivers",
         &transceivers);
     g_assert (transceivers != NULL && transceivers->len > 0);
+    /*...and set the first one to SENDONLY*/
     trans = g_array_index (transceivers, GstWebRTCRTPTransceiver *, 0);
-    trans->direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY;
+    g_object_set (trans, "direction", GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY, NULL);
     g_array_unref (transceivers);
 
     g_signal_connect (receiver_entry->webrtcbin, "on-negotiation-needed",
