@@ -2,9 +2,12 @@
 
 #include <string>
 #include <vector>
+#include <iomanip> //for std::setprecision
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 
 #include "../../extern/uuid/uuid_v4.h"
 #include "../../extern/cborg/cborg/Cbor.h"
@@ -30,8 +33,22 @@ namespace Structs {
         }
 
         _GameObjectParams(const Cborg& decoder, uint32_t idx) {
-            bool restult = decoder.at(idx).find("UUID").getString(_UUID);
-            logger::print("UUID %s\n", _UUID.c_str());
+            decoder.at(idx).find("UUID").getString(_UUID);
+            decoder.at(idx).find("mesh").getString(_mesh);
+            decoder.at(idx).find("shader").getUnsigned((uint32_t*)&_shader);
+            decoder.at(idx).find("material").getUnsigned((uint32_t*)&_material);
+
+            uint32_t Mparams = decoder.at(idx).find("M").getSize();
+            if (Mparams != 16)
+                logger::printErr("The decoder found %d params for the M matrix\n", Mparams);
+
+            float *fM = glm::value_ptr(_M);
+            for (uint32_t i = 0; i < Mparams; i++)
+            {
+                std::string value;
+                decoder.at(idx).find("M").at(i).getString(value);
+                fM[i] = std::stof(value.c_str());
+            }
         }
 
         std::size_t encodeCBOR(Cbore& encoder) {
@@ -44,23 +61,16 @@ namespace Structs {
                     .key("M")
                         .array(16);
                     //FIXME:: cborg doesn't handle well float encoding, this is a temp fix - better implement float encoding
+
                     for(int i = 0; i < 16; i++)
                     {
-                        int32_t value;
-                        memcpy(&value,&fM[i], sizeof(float) );
+                        std::string s = std::to_string(fM[i]);
                         encoder
-                            .item(value);
+                            .item(s.c_str(), s.length());
                     }
 
             return encoder.getLength();            
         }
-
-
-        // std::size_t decodeCBOR(By) {
-        //     Cborg decoder(buffer.data(), buffer.size());
-
-        //     return decoder.getCBORLength();
-        // }
     };
 
 }

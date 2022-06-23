@@ -31,9 +31,6 @@ namespace Structs {
                 encoder
                     .end()
                 .end();
-
-                encoder.print();
-                // logger::print("%d\n", encoder.getLength());
                 return encoder.getLength();
             }
 
@@ -43,6 +40,7 @@ namespace Structs {
                 uint32_t objs = decoder.at(1).getSize();
                 for (uint32_t i = 0; i < objs; i++)
                     _scene_objects.push_back(GameObjectParams(decoder.at(1), i));
+                _camera_params.decodeCBOR(decoder, 2);
 
                 return decoder.getCBORLength();
             }

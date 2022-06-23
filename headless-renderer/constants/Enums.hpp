@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Constants {
-    enum ShadingType {
+    enum ShadingType : uint32_t {
         GOURAUD,
         PHONG,
         BLINN,
@@ -10,7 +10,7 @@ namespace Constants {
         WAVE
     };
 
-    enum MaterialType {
+    enum MaterialType : uint32_t {
         RED_PLASTIC,
         EMERALD,
         BRASS,
