@@ -14,7 +14,9 @@ private:
 
 public:
     GameObject(GameObjectParams attributes) : _attributes(attributes) {}
-    GameObject() {}
+    GameObject(std::string mesh) {
+        _attributes._mesh = mesh;
+    }
     virtual void update(const Input& input, double dt) = 0;
     
     const std::string& getUUID() const {return _attributes._UUID; }

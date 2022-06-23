@@ -29,15 +29,20 @@ namespace Structs {
             _UUID = uuid.str();
         }
 
+        _GameObjectParams(const Cborg& decoder, uint32_t idx) {
+            bool restult = decoder.at(idx).find("UUID").getString(_UUID);
+            logger::print("UUID %s\n", _UUID.c_str());
+        }
+
         std::size_t encodeCBOR(Cbore& encoder) {
             float *fM = glm::value_ptr(_M);
-            encoder.map()
+            encoder.map(5)
                     .key("UUID").value(_UUID.c_str(), _UUID.length())
                     .key("mesh").value(_mesh.c_str(), _mesh.length())
                     .key("shader").value(_shader)
                     .key("material").value(_material)
                     .key("M")
-                        .array();
+                        .array(16);
                     //FIXME:: cborg doesn't handle well float encoding, this is a temp fix - better implement float encoding
                     for(int i = 0; i < 16; i++)
                     {
@@ -46,9 +51,6 @@ namespace Structs {
                         encoder
                             .item(value);
                     }
-                    encoder
-                        .end()
-                    .end();
 
             return encoder.getLength();            
         }

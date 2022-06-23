@@ -15,9 +15,9 @@ namespace Structs {
             float *fP = glm::value_ptr(_projectionMatrix);
             float *fV = glm::value_ptr(_viewMatrix);
 
-            encoder.map()
+            encoder.map(2)
                     .key("projectionMatrix")
-                        .array();
+                        .array(16);
                         //FIXME:: cborg doesn't handle well float encoding, this is a temp fix - better implement float encoding
                     for(int i = 0; i < 16; i++)
                     {
@@ -27,9 +27,8 @@ namespace Structs {
                             .item(value);
                     }
                     encoder
-                        .end()
-                    .key("viewMatrix")
-                        .array();
+                        .key("viewMatrix")
+                            .array(16);
                     for(int i = 0; i < 16; i++)
                     {
                         int32_t value;
@@ -37,9 +36,6 @@ namespace Structs {
                         encoder
                             .item(value);
                     }
-                    encoder
-                        .end()
-                    .end();
 
             return encoder.getLength();            
         }

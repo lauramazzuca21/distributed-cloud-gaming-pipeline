@@ -13,5 +13,5 @@ namespace Constants {
     const glm::vec3 VEC_UP_3 = glm::vec3(0.0f, 1.0f, 0.0f);
     const glm::vec4 VEC_UP_4 = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
 
-    const std::size_t FRAME_PARAMS_CBOR_LEN = 10000;
+    const std::size_t FRAME_PARAMS_CBOR_LEN = 3000;
 }

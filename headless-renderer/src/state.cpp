@@ -28,14 +28,17 @@ int main(int argc, char const *argv[])
 
     logger::print("Adding Dragon to scene.\n");
     scene.addSceneObject(new Dragon());
+    scene.addSceneObject(new Dragon());
+
+    // while (!server.hasClientConnected())
+    // {
+    //     std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+    // }
 
     /* Start game loop */
     logger::print("Starting game loop.\n");
-    while (!server.hasClientConnected())
-    {
-    }
-    while (!server.hasClientDisconnected())
-    {
+    // while (!server.hasClientDisconnected())
+    // {
         std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();    
         double dt =  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - previousTime).count();
         previousTime = currentTime;
@@ -50,11 +53,13 @@ int main(int argc, char const *argv[])
         ByteVector buffer;
         buffer.reserve(Constants::FRAME_PARAMS_CBOR_LEN);
         frameParams.encodeCBOR(buffer);
+        logger::print("%d\n", buffer.size());
+        frameParams.decodeCBOR(buffer);
         /*send updated state to renderer*/
         server.send(buffer);
 
         ++currentFrame;
-    }
+    // }
 
     logger::print("Stopping server.\n");
     server.stop();

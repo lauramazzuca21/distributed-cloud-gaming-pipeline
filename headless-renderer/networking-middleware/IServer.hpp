@@ -1,7 +1,7 @@
 #pragma once
 
 class IServer {
-    //FIXME change to use callbacks
+    //FIXME find a much better way to implement an interface for the connection between services
     public:
         virtual void start(...) = 0;
         virtual void stop(...) = 0;
