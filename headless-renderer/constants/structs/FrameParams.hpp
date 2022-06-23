@@ -3,7 +3,11 @@
 #include <vector>
 
 #include "../../extern/cborg/cborg/Cbor.h"
+
+#include "../Values.hpp"
 #include "../Enums.hpp"
+
+#include "../../utils/LogUtils.hpp"
 
 namespace Structs {
 
@@ -14,15 +18,22 @@ namespace Structs {
             CameraParams _camera_params;
 
             size_t encodeCBOR(ByteVector& buffer) {
-                Cbore encoder(buffer.data(), buffer.size());
-                
-                encoder.tag(_frame_num).array();
+                Cbore encoder(buffer.data(), Constants::FRAME_PARAMS_CBOR_LEN);
+                encoder
+                .array(2)
+                    .item(_frame_num)
+                    .array();
                 
                 for (auto& obj : _scene_objects)
                     obj.encodeCBOR(encoder);
                 
                 _camera_params.encodeCBOR(encoder);
-                encoder.end();
+                encoder
+                    .end()
+                .end();
+
+                // encoder.print();
+                // logger::print("%d\n", encoder.getLength());
                 return encoder.getLength();
             }
 

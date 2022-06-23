@@ -9,8 +9,8 @@ void GameObject::rotateOCS(Constants::VectorType rotationVector, float angle)
 }
 
 void GameObject::scaleOCS(glm::vec3 scaleFactor) {
-    _attributes._scale = glm::vec3(scaleFactor);
-    _attributes._M = glm::scale(_attributes._M, _attributes._scale);
+    _scale = glm::vec3(scaleFactor);
+    _attributes._M = glm::scale(_attributes._M, _scale);
 }
 
 void GameObject::translateOCS(glm::vec3 translationVector) {

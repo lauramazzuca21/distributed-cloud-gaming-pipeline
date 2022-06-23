@@ -17,41 +17,28 @@ namespace Structs {
 
             encoder.map()
                     .key("projectionMatrix")
-                    .array(16)
-                            .item(fP[0])
-                            .item(fP[1])
-                            .item(fP[2])
-                            .item(fP[3])
-                            .item(fP[4])
-                            .item(fP[5])
-                            .item(fP[6])
-                            .item(fP[7])
-                            .item(fP[8])
-                            .item(fP[9])
-                            .item(fP[10])
-                            .item(fP[11])
-                            .item(fP[12])
-                            .item(fP[13])
-                            .item(fP[14])
-                            .item(fP[15])
+                        .array();
+                        //FIXME:: cborg doesn't handle well float encoding, this is a temp fix - better implement float encoding
+                    for(int i = 0; i < 16; i++)
+                    {
+                        int32_t value;
+                        memcpy(&value,&fP[i], sizeof(float) );
+                        encoder
+                            .item(value);
+                    }
+                    encoder
+                        .end()
                     .key("viewMatrix")
-                        .array(16)
-                            .item(fV[0])
-                            .item(fV[1])
-                            .item(fV[2])
-                            .item(fV[3])
-                            .item(fV[4])
-                            .item(fV[5])
-                            .item(fV[6])
-                            .item(fV[7])
-                            .item(fV[8])
-                            .item(fV[9])
-                            .item(fV[10])
-                            .item(fV[11])
-                            .item(fV[12])
-                            .item(fV[13])
-                            .item(fV[14])
-                            .item(fV[15])
+                        .array();
+                    for(int i = 0; i < 16; i++)
+                    {
+                        int32_t value;
+                        memcpy(&value,&fV[i], sizeof(float) );
+                        encoder
+                            .item(value);
+                    }
+                    encoder
+                        .end()
                     .end();
 
             return encoder.getLength();            

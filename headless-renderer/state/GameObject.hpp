@@ -10,6 +10,8 @@ class GameObject {
 private:
     GameObjectParams _attributes;
 
+    glm::vec3 _scale = glm::vec3(1.0f);
+
 public:
     GameObject(GameObjectParams attributes) : _attributes(attributes) {}
     GameObject() {}
@@ -21,8 +23,7 @@ public:
     Constants::MaterialType getMaterialType() const { return _attributes._material; }
     void setMaterial(Constants::MaterialType material) { _attributes._material = material; }
 
-    glm::vec3 getScale() const { return _attributes._scale; }
-    glm::vec3 getRotAngles() const { return _attributes._rotAngles; }
+    glm::vec3 getScale() const { return _scale; }
     glm::vec3 getPosition() const { return glm::vec3(_attributes._M[3].x, _attributes._M[3].y, _attributes._M[3].z); }
     GameObjectParams getParams() const {return _attributes; }
 

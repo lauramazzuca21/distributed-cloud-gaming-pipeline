@@ -24,9 +24,12 @@ namespace MSteamSockets {
             bool send(ByteVector& buffer);
             // void receive() override;
 
+            bool hasClientConnected() {return _client != k_HSteamNetConnection_Invalid; }
+            bool hasClientDisconnected() {return _client == k_HSteamNetConnection_Invalid; }
+
         private:
             HSteamListenSocket _hListenSock;
-            HSteamNetPollGroup _hPollGroup;
+            // HSteamNetPollGroup _hPollGroup;
             ISteamNetworkingSockets *_pInterface;
             HSteamNetConnection _client;
 

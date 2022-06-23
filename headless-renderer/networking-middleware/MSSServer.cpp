@@ -19,9 +19,9 @@ namespace MSteamSockets {
         _hListenSock = _pInterface->CreateListenSocketIP( serverLocalAddr, 1, &opt );
         if ( _hListenSock == k_HSteamListenSocket_Invalid )
             logger::printErr( "Failed to listen on port %d", nPort );
-        _hPollGroup = _pInterface->CreatePollGroup();
-        if ( _hPollGroup == k_HSteamNetPollGroup_Invalid )
-            logger::printErr( "Failed to listen on port %d", nPort );
+        // _hPollGroup = _pInterface->CreatePollGroup();
+        // if ( _hPollGroup == k_HSteamNetPollGroup_Invalid )
+        //     logger::printErr( "Failed to listen on port %d", nPort );
         logger::print( "Server listening on port %d\n", nPort );
     }
 
@@ -131,12 +131,12 @@ namespace MSteamSockets {
 				}
 
 				// Assign the poll group
-				if ( !_pInterface->SetConnectionPollGroup( pInfo->m_hConn, _hPollGroup ) )
-				{
-					_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-					logger::print( "Failed to set poll group?" );
-					break;
-				}
+				// if ( !_pInterface->SetConnectionPollGroup( pInfo->m_hConn, _hPollGroup ) )
+				// {
+				// 	_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
+				// 	logger::print( "Failed to set poll group?" );
+				// 	break;
+				// }
 			}
 
 			case k_ESteamNetworkingConnectionState_Connected:
